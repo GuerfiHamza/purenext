@@ -169,19 +169,45 @@ class NotificationService
 // FCM HTTP v1 uses OAuth2, not a server key
 private static function getFcmAccessToken(): string
 {
+    $cached = cache('fcm_access_token');
+    if ($cached) return $cached;
+
     $credentialsPath = storage_path('app/firebase/service-account.json');
+    $credentials = json_decode(file_get_contents($credentialsPath), true);
 
-    $credentials = \Google\Auth\ApplicationDefaultCredentials::getCredentials(
-        'https://www.googleapis.com/auth/firebase.messaging'
-    );
+    $now = time();
 
-    // Or use the explicit file approach:
-    $credentials = new \Google\Auth\Credentials\ServiceAccountCredentials(
-        'https://www.googleapis.com/auth/firebase.messaging',
-        json_decode(file_get_contents($credentialsPath), true)
-    );
+    $header = self::base64UrlEncode(json_encode([
+        'alg' => 'RS256',
+        'typ' => 'JWT',
+    ]));
 
-    $token = $credentials->fetchAuthToken();
-    return $token['access_token'];
+    $payload = self::base64UrlEncode(json_encode([
+        'iss'   => $credentials['client_email'],
+        'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+        'aud'   => 'https://oauth2.googleapis.com/token',
+        'iat'   => $now,
+        'exp'   => $now + 3600,
+    ]));
+
+    $signingInput = "$header.$payload";
+    openssl_sign($signingInput, $signature, $credentials['private_key'], 'SHA256');
+    $jwt = "$signingInput." . self::base64UrlEncode($signature);
+
+    $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+        'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion'  => $jwt,
+    ]);
+
+    $accessToken = $response->json('access_token');
+
+    cache(['fcm_access_token' => $accessToken], now()->addMinutes(55));
+
+    return $accessToken;
+}
+
+private static function base64UrlEncode(string $data): string
+{
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 }
