@@ -9,6 +9,39 @@ use Illuminate\Http\JsonResponse;
 
 class FinishedGoodController extends Controller
 {
+    public function adjust(Request $request, FinishedGood $finishedGood): JsonResponse
+{
+    $validated = $request->validate([
+        'type'     => 'required|in:add,remove,set',
+        'quantity' => 'required|numeric|min:0',
+        'reason'   => 'nullable|string|max:255',
+    ]);
+ 
+    $stockBefore = $finishedGood->quantity_in_stock;
+ 
+    $stockAfter = match($validated['type']) {
+        'add'    => $stockBefore + $validated['quantity'],
+        'remove' => max(0, $stockBefore - $validated['quantity']),
+        'set'    => $validated['quantity'],
+    };
+ 
+    $finishedGood->update(['quantity_in_stock' => $stockAfter]);
+ 
+    // Enregistrer le mouvement
+    StockMovement::create([
+        'movable_type' => 'finished_good',
+        'movable_id'   => $finishedGood->id,
+        'type'         => 'adjustment',
+        'quantity'     => abs($stockAfter - $stockBefore),
+        'unit'         => 'pcs',
+        'stock_before' => $stockBefore,
+        'stock_after'  => $stockAfter,
+        'reason'       => $validated['reason'] ?? 'Ajustement manuel',
+        'user_id'      => auth()->id(),
+    ]);
+ 
+    return response()->json($finishedGood->fresh());
+}
     public function index(): JsonResponse
     {
         $goods = FinishedGood::with(['brand', 'productionRun'])

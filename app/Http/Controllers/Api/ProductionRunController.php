@@ -78,9 +78,8 @@ class ProductionRunController extends Controller
                 4, '0', STR_PAD_LEFT
             );
 
-            $run = ProductionRun::create([
+            $data = [
                 'batch_number'             => $batchNumber,
-                'lot_number'               => $lotNumber,
                 'recipe_id'                => $validated['recipe_id'],
                 'recipe_packaging_id'      => $validated['recipe_packaging_id'],
                 'operator_id'              => auth()->id(),
@@ -89,7 +88,12 @@ class ProductionRunController extends Controller
                 'status'                   => 'in_progress',
                 'started_at'               => now(),
                 'notes'                    => $validated['notes'] ?? null,
-            ]);
+            ];
+            // Ajouter lot_number seulement si la colonne existe (migration exécutée)
+            if (\Schema::hasColumn('production_runs', 'lot_number')) {
+                $data['lot_number'] = $lotNumber;
+            }
+            $run = ProductionRun::create($data);
 
             // Décrémenter stock MP + enregistrer mouvements
             foreach ($recipe->ingredients as $ingredient) {

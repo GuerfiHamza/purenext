@@ -15,7 +15,6 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RecipeIngredientController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\NotificationController;
-
 use Illuminate\Support\Facades\Route;
 // Routes publiques
 Route::post('login', [AuthController::class, 'login']);
@@ -67,6 +66,7 @@ Route::get('/production/suggest-lot-number', [ProductionRunController::class, 's
 
     // ─── Produits Finis ───────────────────────────────────────
     Route::apiResource('finished-goods', FinishedGoodController::class);
+    Route::post('/finished-goods/{finishedGood}/adjust', [FinishedGoodController::class, 'adjust']);
 
     // ─── Ventes ───────────────────────────────────────────────
     Route::post('sales-orders/{salesOrder}/deliver', [SalesOrderController::class, 'deliver']);
