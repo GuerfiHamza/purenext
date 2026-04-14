@@ -129,23 +129,59 @@ class NotificationService
     }
 
     public static function sendPush(string $title, string $body, array $data = [], ?int $userId = null): void
-    {
-        $query = PushToken::query();
-        if ($userId) {
-            $query->where('user_id', $userId);
-        }
-        $tokens = $query->pluck('token')->toArray();
-
-        if (empty($tokens)) return;
-
-        $messages = array_map(fn($token) => [
-            'to'    => $token,
-            'sound' => 'default',
-            'title' => $title,
-            'body'  => $body,
-            'data'  => $data,
-        ], $tokens);
-
-        Http::post('https://exp.host/--/api/v2/push/send', $messages);
+{
+    $query = PushToken::query();
+    if ($userId) {
+        $query->where('user_id', $userId);
     }
+    $tokens = $query->pluck('token')->toArray();
+
+    if (empty($tokens)) return;
+
+    $accessToken = self::getFcmAccessToken();
+
+    foreach ($tokens as $token) {
+        Http::withHeaders([
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Content-Type'  => 'application/json',
+        ])->post(
+            'https://fcm.googleapis.com/v1/projects/' . config('services.fcm.project_id') . '/messages:send',
+            [
+                'message' => [
+                    'token'        => $token,
+                    'notification' => [
+                        'title' => $title,
+                        'body'  => $body,
+                    ],
+                    'data' => array_map('strval', $data), // FCM data values must be strings
+                    'android' => [
+                        'priority' => 'high', // needed for heads-up / wake screen
+                    ],
+                    'apns' => [
+                        'headers' => ['apns-priority' => '10'],
+                    ],
+                ],
+            ]
+        );
+    }
+}
+
+// FCM HTTP v1 uses OAuth2, not a server key
+private static function getFcmAccessToken(): string
+{
+    $credentialsPath = storage_path('app/firebase/service-account.json');
+
+    $credentials = \Google\Auth\ApplicationDefaultCredentials::getCredentials(
+        'https://www.googleapis.com/auth/firebase.messaging'
+    );
+
+    // Or use the explicit file approach:
+    $credentials = new \Google\Auth\Credentials\ServiceAccountCredentials(
+        'https://www.googleapis.com/auth/firebase.messaging',
+        json_decode(file_get_contents($credentialsPath), true)
+    );
+
+    $token = $credentials->fetchAuthToken();
+    return $token['access_token'];
+}
 }
