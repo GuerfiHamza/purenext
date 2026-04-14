@@ -33,7 +33,7 @@ class FinishedGoodController extends Controller
         'movable_id'   => $finishedGood->id,
         'type'         => 'adjustment',
         'quantity'     => abs($stockAfter - $stockBefore),
-        'unit'         => 'pcs',
+        'unit'         => 'piece',
         'stock_before' => $stockBefore,
         'stock_after'  => $stockAfter,
         'reason'       => $validated['reason'] ?? 'Ajustement manuel',
