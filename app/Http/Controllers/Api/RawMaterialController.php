@@ -93,5 +93,14 @@ public function adjustStock(Request $request, RawMaterial $rawMaterial): JsonRes
     }
 
     // Ajustement manuel du stock (inventaire physique)
-    
+    public function movements(RawMaterial $rawMaterial): JsonResponse
+{
+    $movements = StockMovement::where('movable_type', 'raw_material')
+        ->where('movable_id', $rawMaterial->id)
+        ->with('user:id,name')
+        ->orderByDesc('created_at')
+        ->paginate(30);
+ 
+    return response()->json($movements);
+}
 }
