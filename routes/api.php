@@ -48,6 +48,7 @@ Route::get('/production/suggest-lot-number', [ProductionRunController::class, 's
     Route::apiResource('raw-materials', RawMaterialController::class);
     Route::post('raw-materials/{rawMaterial}/adjust-stock', [RawMaterialController::class, 'adjustStock']);
     Route::apiResource('recipe-ingredients', RecipeIngredientController::class);
+    Route::get('/raw-materials/{rawMaterial}/movements', [RawMaterialController::class, 'movements']);
 
     // ─── Recettes ─────────────────────────────────────────────
     Route::apiResource('recipes', RecipeController::class);
