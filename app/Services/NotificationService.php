@@ -29,7 +29,7 @@ class NotificationService
 
     public static function checkLowStock(): void
     {
-        $gerants = User::where('role', 'gerant')->where('is_active', true)->get()
+        $gerants = User::where('role', 'gerant')->where('is_active', true)->get();
 
         // MP en stock bas
         $lowMP = RawMaterial::where('is_active', true)
