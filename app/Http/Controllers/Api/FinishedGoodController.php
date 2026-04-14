@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FinishedGood;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-
+use App\Models\StockMovement;
 class FinishedGoodController extends Controller
 {
     public function adjust(Request $request, FinishedGood $finishedGood): JsonResponse
