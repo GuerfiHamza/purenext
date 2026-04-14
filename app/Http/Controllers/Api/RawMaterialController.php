@@ -19,14 +19,14 @@ public function adjustStock(Request $request, RawMaterial $rawMaterial): JsonRes
     $validated = $request->validate([
         'type'     => 'required|in:in,out,adjustment',
         'quantity' => 'required|numeric|min:0.001',
-        'reason'   => 'required|string|max:255|default:Ajustement manuel',
+        'reason' => 'nullable|string|max:255',
     ]);
 
     $material = $this->stockService->adjustRawMaterial(
         $rawMaterial,
         $validated['type'],
         $validated['quantity'],
-        $validated['reason']
+        $validated['reason'] ?? 'Ajustement manuel'
     );
 
     return response()->json($material);
