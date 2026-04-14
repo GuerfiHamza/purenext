@@ -12,7 +12,7 @@ class FinishedGoodController extends Controller
     public function adjust(Request $request, FinishedGood $finishedGood): JsonResponse
 {
     $validated = $request->validate([
-        'type'     => 'required|in:add,remove,set',
+        'type'     => 'required|in:in,out,adjustment',
         'quantity' => 'required|numeric|min:0',
         'reason'   => 'nullable|string|max:255',
     ]);
@@ -20,9 +20,9 @@ class FinishedGoodController extends Controller
     $stockBefore = $finishedGood->quantity_in_stock;
  
     $stockAfter = match($validated['type']) {
-        'add'    => $stockBefore + $validated['quantity'],
-        'remove' => max(0, $stockBefore - $validated['quantity']),
-        'set'    => $validated['quantity'],
+        'in'    => $stockBefore + $validated['quantity'],
+        'out' => max(0, $stockBefore - $validated['quantity']),
+        'adjustment'    => $validated['quantity'],
     };
  
     $finishedGood->update(['quantity_in_stock' => $stockAfter]);
