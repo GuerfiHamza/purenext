@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class ProductionRun extends Model
 {
     protected $fillable = [
-        'batch_number', 'recipe_id', 'recipe_packaging_id', 'operator_id',
+        'batch_number', 'lot_number', 'recipe_id', 'recipe_packaging_id', 'operator_id',
         'input_qty_kg', 'output_packets_estimated', 'output_packets_actual',
         'loss_actual_percentage', 'status', 'started_at', 'finished_at', 'notes'
     ];
