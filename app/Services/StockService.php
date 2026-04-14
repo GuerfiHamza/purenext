@@ -13,7 +13,7 @@ class StockService
         RawMaterial $material,
         string $type,
         float $quantity,
-        string $reason,
+        string $reason = 'Ajustement manuel',
         ?int $userId = null,
         ?string $sourceType = null,
         ?int $sourceId = null
@@ -51,7 +51,7 @@ class StockService
         FinishedGood $good,
         string $type,
         int $quantity,
-        string $reason,
+        string $reason = 'Ajustement manuel'    ,
         ?int $userId = null,
         ?string $sourceType = null,
         ?int $sourceId = null
