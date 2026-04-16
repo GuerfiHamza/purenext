@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <style>
-      @page {
-    margin-bottom: 50px;
+  @page {
+    margin: 20mm 15mm 25mm 15mm;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; }
 
   /* ── Header ── */
@@ -58,16 +57,23 @@
   .notes-box p { font-size:9px; color:#6b7280; }
 
   /* ── Footer ── */
- .doc-footer {
+  .doc-footer {
     position: fixed;
-    bottom: -20px;
+    bottom: 0;
     left: 0;
     right: 0;
-    border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
-    padding-top: 6px;
+    border-top: 1.5px solid #16a34a; /* couleur selon template */
+    padding-top: 5px;
     text-align: center;
     font-size: 8px;
     color: #9ca3af;
+    line-height: 1.6;
+  }
+
+  .doc-footer p {
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
   }
   .footer-note { font-style:italic; margin-bottom:3px; color:#6b7280; }
 
@@ -206,19 +212,19 @@
   {{-- Footer --}}
 
 </div>
-  <div class="doc-footer">
-    @if(!empty($settings['invoice_notes']))
-      <p class="footer-note">{{ $settings['invoice_notes'] }}</p>
-    @endif
-    <p>
-      {{ $settings['company_name'] ?? 'PURENEXT SARL' }}
-      @if(!empty($settings['company_address'])) — {{ $settings['company_address'] }} @endif
-      @if(!empty($settings['company_phone'])) — {{ $settings['company_phone'] }} @endif
-    </p>
-    @if(!empty($settings['company_rib']) && !empty($settings['company_bank']))
-      <p>RIB : {{ $settings['company_rib'] }} — {{ $settings['company_bank'] }}</p>
-    @endif
-    <p style="margin-top:3px;">{{ $reference }}</p>
-  </div>
+<div class="doc-footer">
+  @if(!empty($settings['invoice_notes']))
+    <p style="font-style:italic; color:#6b7280;">{{ $settings['invoice_notes'] }}</p>
+  @endif
+  <p>
+    {{ $settings['company_name'] ?? 'PURENEXT SARL' }}
+    @if(!empty($settings['company_address'])) &nbsp;—&nbsp; {{ $settings['company_address'] }} @endif
+    @if(!empty($settings['company_phone'])) &nbsp;—&nbsp; {{ $settings['company_phone'] }} @endif
+  </p>
+  @if(!empty($settings['company_rib']) && !empty($settings['company_bank']))
+    <p>RIB : {{ $settings['company_rib'] }} &nbsp;—&nbsp; {{ $settings['company_bank'] }}</p>
+  @endif
+  <p style="margin-top:2px; color:#b0b7c3;">{{ $reference }}</p>
+</div>
 </body>
 </html>
