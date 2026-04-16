@@ -6,7 +6,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; }
 
-.label-wrap { width:148mm; height:150mm; padding:5mm; position:relative; overflow:hidden; }
+.label-wrap { width:148mm; height:98mm; padding:5mm; position:relative; overflow:hidden; }
 
   /* Bande header */
   .label-header { background:#1a3a1a; color:white; padding:5mm 6mm;
@@ -20,10 +20,10 @@
   .product-sku  { font-size:9px; color:#9ca3af; font-family:monospace; margin-bottom:3mm; }
 
   /* Séparateur */
-  .sep { border:none; border-top:1px solid #e5e7eb; margin:3mm 0; }
+  .sep { border:none; border-top:1px solid #e5e7eb; margin:2mm 0; }
 
   /* Grille infos */
-  .info-grid { display:table; width:100%; }
+.info-grid { display:table; width:100%; }
   .info-cell { display:table-cell; width:50%; vertical-align:top; }
   .info-label { font-size:7.5px; font-weight:bold; text-transform:uppercase;
                 letter-spacing:.5px; color:#9ca3af; margin-bottom:1mm; }
@@ -32,7 +32,7 @@
 
   /* Décision badge */
 .decision { display:inline-block; padding:1.5mm 4mm; border-radius:999px;
-            font-size:9px; font-weight:bold; margin-top:3mm;
+            font-size:9px; font-weight:bold; margin-top:2mm;
             max-width:100%; word-break:break-word; }
   .decision-accepted         { background:#dcfce7; color:#15803d; }
   .decision-refused          { background:#fee2e2; color:#dc2626; }
@@ -40,15 +40,16 @@
 
   /* DLC zone */
   .dluo-box { background:#fff7ed; border:1.5px solid #fed7aa; border-radius:4px;
-              padding:2mm 3mm; margin-top:3mm; display:table; width:100%; }
-  .dluo-cell { display:table-cell; vertical-align:middle; }
-  .dluo-label { font-size:7.5px; color:#92400e; text-transform:uppercase;
-                font-weight:bold; letter-spacing:.5px; }
-  .dluo-value { font-size:14px; font-weight:bold; color:#c2410c; }
+            padding:2mm 3mm; margin-top:2mm; display:table; width:100%; }
+.dluo-cell { display:table-cell; vertical-align:middle; width:50%; }
+.dluo-value { font-size:13px; font-weight:bold; color:#c2410c; }
+/* Référence plus petite */
+.dluo-ref { font-size:7.5px; font-family:monospace; color:#92400e; 
+            font-weight:bold; word-break:break-all; }
 
   /* Stockage */
   .storage { background:#eff6ff; border-radius:4px; padding:2mm 3mm;
-             margin-top:2mm; display:table; width:100%; }
+             margin-top:1.5mm; display:table; width:100%; }
   .storage-cell { display:table-cell; width:50%; }
   .storage-label { font-size:7px; color:#6b7280; text-transform:uppercase; }
   .storage-value { font-size:13px; font-weight:bold; color:#1d4ed8; }
@@ -103,12 +104,10 @@
       <p class="dluo-label">DLUO / DLC</p>
       <p class="dluo-value">{{ $data['dluo_date'] }}</p>
     </div>
-    <div class="dluo-cell" style="text-align:right;">
-      <p class="dluo-label">Réf.</p>
-      <p style="font-size:9px;font-family:monospace;color:#92400e;font-weight:bold;">
-        {{ $data['receipt_number'] }}
-      </p>
-    </div>
+  <div class="dluo-cell" style="text-align:right;">
+  <p class="dluo-label">Réf.</p>
+  <p class="dluo-ref">{{ $data['receipt_number'] }}</p>
+</div>
   </div>
   @endif
 
