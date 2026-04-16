@@ -24,13 +24,13 @@
 </div>
 
 <table>
-  <tr><th>Numéro de lot</th><td>{{ $data['lot_number'] }}</td></tr>
-  <tr><th>Recette</th><td>{{ $data['recipe'] }}</td></tr>
-  <tr><th>Quantité produite</th><td>{{ $data['quantity'] }} {{ $data['unit'] }}</td></tr>
-  <tr><th>Début</th><td>{{ $data['started_at'] }}</td></tr>
-  <tr><th>Fin</th><td>{{ $data['finished_at'] ?? '—' }}</td></tr>
-  <tr><th>Opérateur</th><td>{{ $data['operator'] }}</td></tr>
-  <tr><th>Statut</th><td><span class="badge">{{ $data['status'] }}</span></td></tr>
+ <tr><th>Lot / Batch</th><td>{{ $data['lot_number'] }} / {{ $data['batch_number'] }}</td></tr>
+<tr><th>Recette</th><td>{{ $data['recipe'] }}</td></tr>
+<tr><th>Format</th><td>{{ $data['packaging'] }} — {{ $data['packet_size'] }}</td></tr>
+<tr><th>Matière entrée</th><td>{{ $data['input_qty_kg'] }}</td></tr>
+<tr><th>Packets estimés</th><td>{{ $data['output_packets_estimated'] }}</td></tr>
+<tr><th>Packets réels</th><td>{{ $data['output_packets_actual'] }}</td></tr>
+<tr><th>Perte</th><td>{{ $data['loss_percentage'] }}</td></tr>
   @if($data['notes'])
   <tr><th>Notes</th><td>{{ $data['notes'] }}</td></tr>
   @endif

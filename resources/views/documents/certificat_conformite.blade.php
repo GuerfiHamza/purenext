@@ -33,12 +33,13 @@
 </div>
 
 <table>
-  <tr><th>Produit</th><td>{{ $data['product'] }}</td></tr>
-  <tr><th>Numéro de lot</th><td>{{ $data['lot_number'] }}</td></tr>
-  <tr><th>Quantité</th><td>{{ $data['quantity'] }}</td></tr>
-  <tr><th>Date de production</th><td>{{ $data['production_date'] }}</td></tr>
-  <tr><th>DLC / Date d'expiration</th><td>{{ $data['expiry_date'] }}</td></tr>
-  <tr><th>Durée de conservation</th><td>{{ $data['shelf_life'] }}</td></tr>
+<tr><th>Lot / Batch</th><td>{{ $data['lot_number'] }} / {{ $data['batch_number'] }}</td></tr>
+<tr><th>Produit</th><td>{{ $data['product'] }}</td></tr>
+<tr><th>Format</th><td>{{ $data['packaging'] }}</td></tr>
+<tr><th>Quantité produite</th><td>{{ $data['quantity'] }}</td></tr>
+<tr><th>Date de production</th><td>{{ $data['production_date'] }}</td></tr>
+<tr><th>DLC / Expiration</th><td>{{ $data['expiry_date'] }}</td></tr>
+<tr><th>Durée de conservation</th><td>{{ $data['shelf_life'] }}</td></tr>
 </table>
 
 <div class="footer">PURENEXT SARL — Certificat de conformité — {{ $reference }}</div>

@@ -68,6 +68,73 @@ class DocumentService
             'generated_by' => $userId,
         ]);
     }
+    private function prepareProductionReport(int $id): array
+{
+    $run = ProductionRun::with(['recipe', 'operator', 'packaging'])->findOrFail($id);
+
+    $data = [
+        'lot_number'                => $run->lot_number ?? $run->batch_number,
+        'batch_number'              => $run->batch_number,
+        'recipe'                    => $run->recipe->name,
+        'input_qty_kg'              => $run->input_qty_kg . ' kg',
+        'output_packets_estimated'  => $run->output_packets_estimated . ' unités',
+        'output_packets_actual'     => $run->output_packets_actual
+                                        ? $run->output_packets_actual . ' unités'
+                                        : '—',
+        'loss_percentage'           => $run->loss_actual_percentage
+                                        ? $run->loss_actual_percentage . ' %'
+                                        : '—',
+        'packaging'                 => optional($run->packaging)->packet_label ?? '—',
+        'packet_size'               => optional($run->packaging)->packet_size_g
+                                        ? optional($run->packaging)->packet_size_g . ' g'
+                                        : '—',
+        'started_at'                => $run->started_at
+                                        ? Carbon::parse($run->started_at)->format('d/m/Y H:i')
+                                        : '—',
+        'finished_at'               => $run->finished_at
+                                        ? Carbon::parse($run->finished_at)->format('d/m/Y H:i')
+                                        : '—',
+        'operator'                  => optional($run->operator)->name ?? '—',
+        'status'                    => $run->status,
+        'notes'                     => $run->notes,
+    ];
+
+    return [$run, $data, 'rapport_production'];
+}
+
+private function prepareCertificat(int $id): array
+{
+    $run = ProductionRun::with(['recipe', 'packaging'])->findOrFail($id);
+
+    // Quantité : préférer packets réels, sinon estimés, sinon input kg
+    $quantity = match(true) {
+        !is_null($run->output_packets_actual)    => $run->output_packets_actual . ' unités',
+        !is_null($run->output_packets_estimated) => $run->output_packets_estimated . ' unités (estimé)',
+        default                                  => $run->input_qty_kg . ' kg',
+    };
+
+    $data = [
+        'lot_number'      => $run->lot_number ?? $run->batch_number,
+        'batch_number'    => $run->batch_number,
+        'product'         => $run->recipe->name,
+        'packaging'       => optional($run->packaging)->packet_label ?? '—',
+        'quantity'        => $quantity,
+        'production_date' => $run->started_at
+                              ? Carbon::parse($run->started_at)->format('d/m/Y')
+                              : '—',
+        'expiry_date'     => $run->recipe->shelf_life_value && $run->started_at
+                              ? Carbon::parse($run->started_at)
+                                  ->addDays($run->recipe->shelf_life_value)
+                                  ->format('d/m/Y')
+                              : '—',
+        'shelf_life'      => $run->recipe->shelf_life_value
+                              ? "{$run->recipe->shelf_life_value} {$run->recipe->shelf_life_unit}"
+                              : '—',
+        'operator'        => optional($run->operator)->name ?? '—',
+    ];
+
+    return [$run, $data, 'certificat_conformite'];
+}
     public function generateReception(string $type, \App\Models\RawMaterialReceipt $receipt, int $userId): \App\Models\Document
     {
         $existing = Document::where('type', $type)
