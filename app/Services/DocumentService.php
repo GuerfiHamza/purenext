@@ -68,39 +68,7 @@ class DocumentService
             'generated_by' => $userId,
         ]);
     }
-    private function prepareProductionReport(int $id): array
-{
-    $run = ProductionRun::with(['recipe', 'operator', 'packaging'])->findOrFail($id);
 
-    $data = [
-        'lot_number'                => $run->lot_number ?? $run->batch_number,
-        'batch_number'              => $run->batch_number,
-        'recipe'                    => $run->recipe->name,
-        'input_qty_kg'              => $run->input_qty_kg . ' kg',
-        'output_packets_estimated'  => $run->output_packets_estimated . ' unités',
-        'output_packets_actual'     => $run->output_packets_actual
-                                        ? $run->output_packets_actual . ' unités'
-                                        : '—',
-        'loss_percentage'           => $run->loss_actual_percentage
-                                        ? $run->loss_actual_percentage . ' %'
-                                        : '—',
-        'packaging'                 => optional($run->packaging)->packet_label ?? '—',
-        'packet_size'               => optional($run->packaging)->packet_size_g
-                                        ? optional($run->packaging)->packet_size_g . ' g'
-                                        : '—',
-        'started_at'                => $run->started_at
-                                        ? Carbon::parse($run->started_at)->format('d/m/Y H:i')
-                                        : '—',
-        'finished_at'               => $run->finished_at
-                                        ? Carbon::parse($run->finished_at)->format('d/m/Y H:i')
-                                        : '—',
-        'operator'                  => optional($run->operator)->name ?? '—',
-        'status'                    => $run->status,
-        'notes'                     => $run->notes,
-    ];
-
-    return [$run, $data, 'rapport_production'];
-}
 
 private function prepareCertificat(int $id): array
 {
@@ -272,24 +240,38 @@ private function prepareCertificat(int $id): array
     // ── Production ────────────────────────────────────────────────
 
     private function prepareProductionReport(int $id): array
-    {
-        $run = ProductionRun::with(['recipe', 'operator'])->findOrFail($id);
+{
+    $run = ProductionRun::with(['recipe', 'operator', 'packaging'])->findOrFail($id);
 
-        $data = [
-            'lot_number' => $run->lot_number,
-            'recipe' => $run->recipe->name,
-            'quantity' => $run->quantity_produced,
-            'unit' => $run->recipe->unit ?? 'kg',
-            'started_at' => $run->started_at ? Carbon::parse($run->started_at)->format('d/m/Y H:i') : '—',
-            'finished_at' => $run->finished_at ? Carbon::parse($run->finished_at)->format('d/m/Y H:i') : '—',
-            'operator' => optional($run->operator)->name ?? '—',
-            'status' => $run->status,
-            'notes' => $run->notes,
-        ];
+    $data = [
+        'lot_number'                => $run->lot_number ?? $run->batch_number,
+        'batch_number'              => $run->batch_number,
+        'recipe'                    => $run->recipe->name,
+        'input_qty_kg'              => $run->input_qty_kg . ' kg',
+        'output_packets_estimated'  => $run->output_packets_estimated . ' unités',
+        'output_packets_actual'     => $run->output_packets_actual
+                                        ? $run->output_packets_actual . ' unités'
+                                        : '—',
+        'loss_percentage'           => $run->loss_actual_percentage
+                                        ? $run->loss_actual_percentage . ' %'
+                                        : '—',
+        'packaging'                 => optional($run->packaging)->packet_label ?? '—',
+        'packet_size'               => optional($run->packaging)->packet_size_g
+                                        ? optional($run->packaging)->packet_size_g . ' g'
+                                        : '—',
+        'started_at'                => $run->started_at
+                                        ? Carbon::parse($run->started_at)->format('d/m/Y H:i')
+                                        : '—',
+        'finished_at'               => $run->finished_at
+                                        ? Carbon::parse($run->finished_at)->format('d/m/Y H:i')
+                                        : '—',
+        'operator'                  => optional($run->operator)->name ?? '—',
+        'status'                    => $run->status,
+        'notes'                     => $run->notes,
+    ];
 
-        return [$run, $data, 'rapport_production'];
-    }
-
+    return [$run, $data, 'rapport_production'];
+}
     private function prepareCertificat(int $id): array
     {
         $run = ProductionRun::with(['recipe'])->findOrFail($id);
