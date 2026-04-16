@@ -99,9 +99,13 @@ class TraceabilityController extends Controller
                         $receipts = $rm
                             ? \App\Models\RawMaterialReceipt::where('raw_material_id', $rm->id)
                                 ->where('decision', '!=', 'refused')
-                                ->where('reception_date', '<=', $run->started_at ?? now())
-                                ->where('reception_date', '>=', \Carbon\Carbon::parse($run->started_at ?? now())->subDays(90))
+                                ->when($run->started_at, function ($q) use ($run) {
+                                    // Si started_at existe → fenêtre 180j avant + 30j après (réception après démarrage possible)
+                                    $q->where('reception_date', '<=', \Carbon\Carbon::parse($run->started_at)->addDays(30))->where('reception_date', '>=', \Carbon\Carbon::parse($run->started_at)->subDays(180));
+                                })
+                                // Si started_at null → toutes les réceptions de cette MP
                                 ->orderByDesc('reception_date')
+                                ->limit(5)
                                 ->get(['receipt_number', 'supplier_name', 'supplier_lot', 'reception_date', 'quantity', 'unit', 'dluo_date'])
                             : collect();
 
