@@ -82,6 +82,10 @@ Route::get('/production/suggest-lot-number', [ProductionRunController::class, 's
     Route::get('/documents/{document}', [DocumentController::class, 'show']);
     Route::get('/documents/{document}/download', [DocumentController::class, 'download']);
     Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
+    Route::get('/raw-material-receipts', [RawMaterialReceiptController::class, 'index']);
+Route::post('/raw-material-receipts', [RawMaterialReceiptController::class, 'store']);
+Route::get('/raw-material-receipts/{rawMaterialReceipt}', [RawMaterialReceiptController::class, 'show']);
+Route::post('/raw-material-receipts/{rawMaterialReceipt}/generate-document', [RawMaterialReceiptController::class, 'generateDocuments']);
     // ─── Routes réservées par rôle ────────────────────────────
     Route::middleware('role:gerant')->group(function () {
         Route::get('settings', [SettingsController::class, 'index']);
