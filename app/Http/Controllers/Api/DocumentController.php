@@ -14,10 +14,7 @@ class DocumentController extends Controller
 
     public function index(Request $request)
     {
-        $docs = Document::with('generatedBy')
-            ->when($request->type, fn($q) => $q->where('type', $request->type))
-            ->orderByDesc('created_at')
-            ->paginate(20);
+        $docs = Document::with('generatedBy')->when($request->type, fn($q) => $q->where('type', $request->type))->orderByDesc('created_at')->paginate(20);
 
         return response()->json($docs);
     }
@@ -25,32 +22,37 @@ class DocumentController extends Controller
     public function generate(Request $request)
     {
         $request->validate([
-            'type'            => 'required|in:rapport_production,certificat_conformite,fiche_technique,facture,bon_livraison,bon_commande',
+            'type' => 'required|in:rapport_production,certificat_conformite,fiche_technique,facture,bon_livraison,bon_commande',
             'documentable_id' => 'required|integer',
-            // Champs spécifiques bon_commande
-            'items'           => 'required_if:type,bon_commande|array',
-            'items.*.name'             => 'required_if:type,bon_commande|string',
-            'items.*.quantity_needed'  => 'required_if:type,bon_commande|numeric|min:0',
-            'items.*.unit'             => 'required_if:type,bon_commande|string',
-            'items.*.unit_price'       => 'nullable|numeric|min:0',
-            'delivery_date'   => 'nullable|string',
-            'notes'           => 'nullable|string',
+            'items' => 'required_if:type,bon_commande|array',
+            'items.*.name' => 'required_if:type,bon_commande|string',
+            'items.*.quantity_needed' => 'required_if:type,bon_commande|numeric|min:0',
+            'items.*.unit' => 'required_if:type,bon_commande|string',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
+            'delivery_date' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $extra = $request->only(['items', 'delivery_date', 'notes']);
 
-        $doc = $this->service->generate(
-            $request->type,
-            $request->documentable_id,
-            $request->user()->id,
-            $extra,
-        );
+        $wasExisting = false;
 
-        return response()->json([
-            'message'  => 'Document généré avec succès.',
-            'document' => $doc,
-            'url'      => $doc->download_url,
-        ], 201);
+        // Vérifie avant de générer si le doc existe déjà
+        if ($request->type !== 'bon_commande') {
+            $wasExisting = Document::where('type', $request->type)->where('documentable_id', $request->documentable_id)->exists();
+        }
+
+        $doc = $this->service->generate($request->type, $request->documentable_id, $request->user()->id, $extra);
+
+        return response()->json(
+            [
+                'message' => $wasExisting ? 'Document existant retourné.' : 'Document généré avec succès.',
+                'document' => $doc,
+                'url' => url('storage/' . $doc->file_path),
+                'existing' => $wasExisting,
+            ],
+            $wasExisting ? 200 : 201,
+        );
     }
 
     public function show(Document $document)
@@ -60,16 +62,9 @@ class DocumentController extends Controller
 
     public function download(Document $document)
     {
-        abort_unless(
-            Storage::disk('public')->exists($document->file_path),
-            404,
-            'Fichier introuvable.'
-        );
+        abort_unless(Storage::disk('public')->exists($document->file_path), 404, 'Fichier introuvable.');
 
-        return Storage::disk('public')->download(
-            $document->file_path,
-            "{$document->reference}.pdf"
-        );
+        return Storage::disk('public')->download($document->file_path, "{$document->reference}.pdf");
     }
 
     public function destroy(Document $document)

@@ -16,41 +16,73 @@ class DocumentService
 {
     private ?array $settings = null;
 
-    public function generate(string $type, int $documentableId, int $userId, array $extra = []): Document
-    {
-        [$documentable, $data, $view] = match ($type) {
-            'rapport_production'    => $this->prepareProductionReport($documentableId),
-            'certificat_conformite' => $this->prepareCertificat($documentableId),
-            'fiche_technique'       => $this->prepareFicheTechnique($documentableId),
-            'facture'               => $this->prepareFacture($documentableId),
-            'bon_livraison'         => $this->prepareBonLivraison($documentableId),
-            'bon_commande'          => $this->prepareBonCommande($documentableId, $extra),
-            default                 => throw new \InvalidArgumentException("Type inconnu : $type"),
-        };
+public function generate(string $type, int $documentableId, int $userId, array $extra = []): Document
+{
+    // ── Vérifie si déjà généré ────────────────────────────────
+    // Pour bon_commande on ne dédoublonne pas (même fournisseur,
+    // commandes différentes à des dates différentes)
+    if ($type !== 'bon_commande') {
+        $existing = Document::where('type', $type)
+            ->where('documentable_id', $documentableId)
+            ->where('documentable_type', $this->resolveDocumentableClass($type))
+            ->first();
 
-        $reference = $this->generateReference($type);
-        $settings  = $this->getSettings();
-
-        $pdf = Pdf::loadView("documents.$view", [
-            'data'      => $data,
-            'reference' => $reference,
-            'date'      => now()->format('d/m/Y'),
-            'settings'  => $settings,
-        ])->setPaper('a4');
-
-        $filename = "documents/{$reference}.pdf";
-        Storage::disk('public')->put($filename, $pdf->output());
-
-        return Document::create([
-            'type'              => $type,
-            'reference'         => $reference,
-            'documentable_type' => get_class($documentable),
-            'documentable_id'   => $documentable->id,
-            'data'              => $data,
-            'file_path'         => $filename,
-            'generated_by'      => $userId,
-        ]);
+        if ($existing) {
+            // Vérifie que le fichier existe encore sur le disque
+            if ($existing->file_path && Storage::disk('public')->exists($existing->file_path)) {
+                return $existing;
+            }
+            // Fichier supprimé du disque → on supprime l'entrée et on régénère
+            $existing->delete();
+        }
     }
+
+    // ── Génération normale ────────────────────────────────────
+    [$documentable, $data, $view] = match ($type) {
+        'rapport_production'    => $this->prepareProductionReport($documentableId),
+        'certificat_conformite' => $this->prepareCertificat($documentableId),
+        'fiche_technique'       => $this->prepareFicheTechnique($documentableId),
+        'facture'               => $this->prepareFacture($documentableId),
+        'bon_livraison'         => $this->prepareBonLivraison($documentableId),
+        'bon_commande'          => $this->prepareBonCommande($documentableId, $extra),
+        default                 => throw new \InvalidArgumentException("Type inconnu : $type"),
+    };
+
+    $reference = $this->generateReference($type);
+    $settings  = $this->getSettings();
+
+    $pdf = Pdf::loadView("documents.$view", [
+        'data'      => $data,
+        'reference' => $reference,
+        'date'      => now()->format('d/m/Y'),
+        'settings'  => $settings,
+    ])->setPaper('a4');
+
+    $filename = "documents/{$reference}.pdf";
+    Storage::disk('public')->put($filename, $pdf->output());
+
+    return Document::create([
+        'type'              => $type,
+        'reference'         => $reference,
+        'documentable_type' => get_class($documentable),
+        'documentable_id'   => $documentable->id,
+        'data'              => $data,
+        'file_path'         => $filename,
+        'generated_by'      => $userId,
+    ]);
+}
+
+// ── Helper pour résoudre la classe selon le type ──────────────
+private function resolveDocumentableClass(string $type): string
+{
+    return match ($type) {
+        'rapport_production', 'certificat_conformite' => \App\Models\ProductionRun::class,
+        'fiche_technique'                             => \App\Models\Recipe::class,
+        'facture', 'bon_livraison'                    => \App\Models\SalesOrder::class,
+        'bon_commande'                                => \App\Models\Supplier::class,
+        default => throw new \InvalidArgumentException("Type inconnu : $type"),
+    };
+}
 
     // ── Settings ──────────────────────────────────────────────────
 
