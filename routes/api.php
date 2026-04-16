@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RecipeIngredientController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\DocumentController;
 use Illuminate\Support\Facades\Route;
 // Routes publiques
 Route::post('login', [AuthController::class, 'login']);
@@ -76,7 +77,11 @@ Route::get('/production/suggest-lot-number', [ProductionRunController::class, 's
     // ─── Mouvements Stock (lecture seule) ─────────────────────
     Route::get('stock-movements', [StockMovementController::class, 'index']);
     Route::get('stock-movements/{stockMovement}', [StockMovementController::class, 'show']);
-
+    Route::get('/documents', [DocumentController::class, 'index']);
+    Route::post('/documents/generate', [DocumentController::class, 'generate']);
+    Route::get('/documents/{document}', [DocumentController::class, 'show']);
+    Route::get('/documents/{document}/download', [DocumentController::class, 'download']);
+    Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
     // ─── Routes réservées par rôle ────────────────────────────
     Route::middleware('role:gerant')->group(function () {
         Route::get('settings', [SettingsController::class, 'index']);
