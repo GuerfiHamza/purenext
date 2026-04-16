@@ -64,7 +64,7 @@ public function monthlyReport(Request $request)
     $end   = Carbon::parse($month . '-01')->endOfMonth();
 
     // --- Lots produits ce mois ---
-    $productions = ProductionRun::with(['recipe', 'stockMovements'])
+    $productions = ProductionRun::with(['recipe'])
         ->whereBetween('started_at', [$start, $end])
         ->whereNotNull('lot_number')
         ->get();
