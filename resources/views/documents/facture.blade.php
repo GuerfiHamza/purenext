@@ -5,7 +5,7 @@
 <style>
  
     * { margin:0 0 50px 0; padding:0; box-sizing:border-box; }
-  body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; position: relative; }
+  body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; }
 
   /* ── Header ── */
   .doc-header { background:#16a34a; color:white; padding:16px 20px; display:table; width:100%; }
@@ -57,7 +57,7 @@
 
   /* ── Footer ── */
   .doc-footer {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
@@ -119,7 +119,7 @@
 </div>
 
 {{-- Parties --}}
-<div style="padding:0 20px; padding-bottom: 60px;">
+<div style="padding:0 20px;">
   <div class="parties">
     <div class="party">
       <p class="party-label">Émetteur</p>
