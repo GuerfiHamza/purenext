@@ -116,7 +116,7 @@
 </div>
 
 {{-- Parties --}}
-<div style="padding:0 20px; flex:1;">
+<div style="padding:0 20px;">
   <div class="parties">
     <div class="party">
       <p class="party-label">Émetteur</p>
