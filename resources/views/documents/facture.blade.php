@@ -59,7 +59,7 @@
   /* ── Footer ── */
   .doc-footer {
     position: fixed;
-    bottom: -20px;
+    bottom: 20px;
     left: 0;
     right: 0;
     border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
