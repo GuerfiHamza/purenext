@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:10px }
+  body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; }
 
   @page { margin: 15mm 15mm 25mm 15mm; }
 
@@ -22,7 +22,7 @@
            padding:2px 10px; border-radius:999px; font-size:9px;
            font-weight:bold; margin-top:5px; }
 
-  .section { margin:14px 0; }
+  .section { margin:14px 0; padding:10px }
   .section-title { font-size:9px; font-weight:bold; text-transform:uppercase;
                    letter-spacing:1px; color:#16a34a; border-bottom:1.5px solid #16a34a;
                    padding-bottom:4px; margin-bottom:10px; }
