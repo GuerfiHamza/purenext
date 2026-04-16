@@ -7,19 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RawMaterialReceipt extends Model
 {
-    protected $fillable = [
-        'receipt_number', 'raw_material_id', 'supplier_id', 'supplier_name',
-        'supplier_lot', 'quantity', 'unit', 'unit_cost', 'reception_date',
-        'dluo_date', 'temperature', 'humidity', 'visual_check', 'smell_check',
-        'refractometer_brix', 'refractometer_humidity', 'decision',
-        'storage_zone', 'storage_location', 'notes', 'received_by',
-    ];
+    protected $fillable = ['receipt_number', 'raw_material_id', 'supplier_id', 'supplier_name', 'supplier_lot', 'quantity', 'unit', 'unit_cost', 'reception_date', 'dluo_date', 'temperature', 'humidity', 'visual_check', 'smell_check', 'refractometer_brix', 'refractometer_humidity', 'decision', 'storage_zone', 'storage_location', 'notes', 'received_by'];
 
     protected $casts = [
         'reception_date' => 'date',
-        'dluo_date'      => 'date',
-        'quantity'       => 'decimal:3',
-        'unit_cost'      => 'decimal:2',
+        'dluo_date' => 'date',
+        'quantity' => 'decimal:3',
+        'unit_cost' => 'decimal:2',
     ];
 
     public function rawMaterial(): BelongsTo
@@ -43,13 +37,14 @@ class RawMaterialReceipt extends Model
         if ($this->decision === 'accepted' || $this->decision === 'accepted_reserve') {
             $this->rawMaterial->increment('quantity_in_stock', $this->quantity);
 
-            // Enregistre le mouvement
             StockMovement::create([
-                'raw_material_id' => $this->raw_material_id,
-                'type'            => 'in',
-                'quantity'        => $this->quantity,
-                'reason'          => "Réception {$this->receipt_number} — Lot fournisseur : {$this->supplier_lot}",
-                'user_id'         => $this->received_by,
+                'movable_type' => RawMaterial::class, // ← morph type
+                'movable_id' => $this->raw_material_id, // ← morph id
+                'raw_material_id' => $this->raw_material_id, // ← si colonne directe aussi
+                'type' => 'in',
+                'quantity' => $this->quantity,
+                'reason' => "Réception {$this->receipt_number} — Lot fournisseur : {$this->supplier_lot}",
+                'user_id' => $this->received_by,
             ]);
         }
     }
