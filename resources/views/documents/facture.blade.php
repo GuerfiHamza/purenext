@@ -58,12 +58,8 @@
   .notes-box p { font-size:9px; color:#6b7280; }
 
   /* ── Footer ── */
- .doc-footer {
-    position: fixed;
-    bottom: -20px;
-    left: 0;
-    right: 0;
-    border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
+  .doc-footer {
+    border-top: 1.5px solid #92400e; /* couleur selon template */
     padding-top: 6px;
     text-align: center;
     font-size: 8px;
@@ -112,6 +108,9 @@
     @endif
   </div>
 </div>
+  <table style="width:100%; height:247mm; border-collapse:collapse;">
+    <tr>
+      <td style="vertical-align:top; padding:0;">
 
 {{-- Parties --}}
 <div style="padding:0 20px;">
@@ -206,19 +205,26 @@
   {{-- Footer --}}
 
 </div>
-  <div class="doc-footer">
-    @if(!empty($settings['invoice_notes']))
-      <p class="footer-note">{{ $settings['invoice_notes'] }}</p>
-    @endif
-    <p>
-      {{ $settings['company_name'] ?? 'PURENEXT SARL' }}
-      @if(!empty($settings['company_address'])) — {{ $settings['company_address'] }} @endif
-      @if(!empty($settings['company_phone'])) — {{ $settings['company_phone'] }} @endif
-    </p>
-    @if(!empty($settings['company_rib']) && !empty($settings['company_bank']))
-      <p>RIB : {{ $settings['company_rib'] }} — {{ $settings['company_bank'] }}</p>
-    @endif
-    <p style="margin-top:3px;">{{ $reference }}</p>
-  </div>
+  </td>
+    </tr>
+    <tr>
+      <td style="vertical-align:bottom; padding:0 20px;">
+        <div class="doc-footer">
+          @if(!empty($settings['invoice_notes']))
+            <p class="footer-note">{{ $settings['invoice_notes'] }}</p>
+          @endif
+          <p>
+            {{ $settings['company_name'] ?? 'PURENEXT SARL' }}
+            @if(!empty($settings['company_address'])) — {{ $settings['company_address'] }} @endif
+            @if(!empty($settings['company_phone'])) — {{ $settings['company_phone'] }} @endif
+          </p>
+          @if(!empty($settings['company_rib']) && !empty($settings['company_bank']))
+            <p>RIB : {{ $settings['company_rib'] }} — {{ $settings['company_bank'] }}</p>
+          @endif
+          <p style="margin-top:3px;">{{ $reference }}</p>
+        </div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

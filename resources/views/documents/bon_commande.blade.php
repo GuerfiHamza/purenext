@@ -40,12 +40,8 @@
   .sig-label { font-size:9px; font-weight:bold; text-transform:uppercase; color:#9ca3af; margin-bottom:6px; }
   .sig-line { border:1px solid #d1d5db; border-radius:3px; height:28px; margin-top:4px; }
   .sig-hint { font-size:8px; color:#d1d5db; text-align:center; margin-top:3px; }
- .doc-footer {
-    position: fixed;
-    bottom: -20px;
-    left: 0;
-    right: 0;
-    border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
+  .doc-footer {
+    border-top: 1.5px solid #92400e; /* couleur selon template */
     padding-top: 6px;
     text-align: center;
     font-size: 8px;
