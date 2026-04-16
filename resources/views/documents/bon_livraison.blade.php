@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <style>
-      @page {
-    margin-bottom: 30px;
+  @page {
+    margin-bottom: 110px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; }
@@ -38,7 +38,11 @@
   .sig-line { border:1px solid #d1d5db; border-radius:3px; height:28px; margin-top:4px; }
   .sig-hint { font-size:8px; color:#d1d5db; text-align:center; margin-top:3px; }
   .doc-footer {
-    border-top: 1.5px solid #92400e; /* couleur selon template */
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
     padding-top: 6px;
     text-align: center;
     font-size: 8px;
