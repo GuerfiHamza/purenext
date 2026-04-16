@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\RawMaterialReceiptController;
+use App\Http\Controllers\Api\TraceabilityController;
 use Illuminate\Support\Facades\Route;
 // Routes publiques
 Route::post('login', [AuthController::class, 'login']);
