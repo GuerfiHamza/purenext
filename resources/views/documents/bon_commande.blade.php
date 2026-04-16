@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <style>
+      @page {
+    margin-bottom: 30px;
+  }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; }
   .doc-header { background:#92400e; color:white; padding:16px 20px; display:table; width:100%; }
@@ -37,8 +40,17 @@
   .sig-label { font-size:9px; font-weight:bold; text-transform:uppercase; color:#9ca3af; margin-bottom:6px; }
   .sig-line { border:1px solid #d1d5db; border-radius:3px; height:28px; margin-top:4px; }
   .sig-hint { font-size:8px; color:#d1d5db; text-align:center; margin-top:3px; }
-  .doc-footer { margin-top:20px; border-top:1.5px solid #92400e; padding-top:8px;
-                text-align:center; font-size:8px; color:#9ca3af; }
+ .doc-footer {
+    position: fixed;
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
+    padding-top: 6px;
+    text-align: center;
+    font-size: 8px;
+    color: #9ca3af;
+  }
   .po-notes { margin-top:12px; background:#fffbeb; border-radius:4px; padding:10px 12px; }
   .po-notes .label { font-size:8px; font-weight:bold; text-transform:uppercase; color:#92400e; margin-bottom:3px; }
 </style>
@@ -175,5 +187,16 @@
     <p style="margin-top:3px;">{{ $reference }}</p>
   </div>
 </div>
+ <div class="doc-footer">
+    @if(!empty($data['delivery_notes']))
+      <p class="footer-note">{{ $data['delivery_notes'] }}</p>
+    @endif
+    <p>
+      {{ $settings['company_name'] ?? 'PURENEXT SARL' }}
+      @if(!empty($settings['company_address'])) — {{ $settings['company_address'] }} @endif
+      @if(!empty($settings['company_phone'])) — {{ $settings['company_phone'] }} @endif
+    </p>
+    <p style="margin-top:3px;">{{ $reference }}</p>
+  </div>
 </body>
 </html>
