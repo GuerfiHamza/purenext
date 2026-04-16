@@ -6,7 +6,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; }
 
-  .label-wrap { width:148mm; height:98mm; padding:6mm; position:relative; }
+.label-wrap { width:148mm; height:150mm; padding:5mm; position:relative; overflow:hidden; }
 
   /* Bande header */
   .label-header { background:#1a3a1a; color:white; padding:5mm 6mm;
@@ -31,8 +31,9 @@
   .info-value.large { font-size:16px; }
 
   /* Décision badge */
-  .decision { display:inline-block; padding:1.5mm 4mm; border-radius:999px;
-              font-size:9px; font-weight:bold; margin-top:3mm; }
+.decision { display:inline-block; padding:1.5mm 4mm; border-radius:999px;
+            font-size:9px; font-weight:bold; margin-top:3mm;
+            max-width:100%; word-break:break-word; }
   .decision-accepted         { background:#dcfce7; color:#15803d; }
   .decision-refused          { background:#fee2e2; color:#dc2626; }
   .decision-accepted_reserve { background:#fef9c3; color:#92400e; }
@@ -53,9 +54,10 @@
   .storage-value { font-size:13px; font-weight:bold; color:#1d4ed8; }
 
   /* Footer */
-  .label-footer { position:absolute; bottom:6mm; left:6mm; right:6mm;
-                  border-top:1px solid #e5e7eb; padding-top:2mm; }
-  .label-footer p { font-size:7px; color:#9ca3af; text-align:center; }
+.label-footer { position:absolute; bottom:4mm; left:5mm; right:5mm;
+                border-top:1px solid #e5e7eb; padding-top:2mm; }
+.label-footer p { font-size:6.5px; color:#9ca3af; text-align:center; 
+                  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 </style>
 </head>
 <body>
@@ -133,8 +135,7 @@
   <span class="decision decision-{{ $data['decision'] }}">{{ $decisionLabel }}</span>
 
   <div class="label-footer">
-    <p>{{ $settings['company_name'] ?? 'PURENEXT SARL' }} &nbsp;·&nbsp; {{ $reference }} &nbsp;·&nbsp; {{ $date }}</p>
-  </div>
+<p>{{ $settings['company_name'] ?? 'PURENEXT SARL' }} · {{ Str::limit($reference, 20) }} · {{ $date }}</p>  </div>
 
 </div>
 </body>
