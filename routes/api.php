@@ -26,16 +26,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead']);
     Route::post('notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::delete('notifications/{notification}', [NotificationController::class, 'destroy']);
-Route::post('push-token', function (\Illuminate\Http\Request $request) {
-    $request->validate(['token' => 'required|string']);
-Route::get('/production/suggest-lot-number', [ProductionRunController::class, 'suggestLotNumber']);
-    \App\Models\PushToken::updateOrCreate(
-        ['user_id' => auth()->id()],
-        ['token' => $request->token, 'platform' => 'android']
-    );
+    Route::post('push-token', function (\Illuminate\Http\Request $request) {
+        $request->validate(['token' => 'required|string']);
+        Route::get('/production/suggest-lot-number', [ProductionRunController::class, 'suggestLotNumber']);
+        \App\Models\PushToken::updateOrCreate(['user_id' => auth()->id()], ['token' => $request->token, 'platform' => 'android']);
 
-    return response()->json(['message' => 'Token saved.']);
-});
+        return response()->json(['message' => 'Token saved.']);
+    });
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'me']);
     Route::get('dashboard', [DashboardController::class, 'index']);
@@ -84,9 +81,12 @@ Route::get('/production/suggest-lot-number', [ProductionRunController::class, 's
     Route::get('/documents/{document}/download', [DocumentController::class, 'download']);
     Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
     Route::get('/raw-material-receipts', [RawMaterialReceiptController::class, 'index']);
-Route::post('/raw-material-receipts', [RawMaterialReceiptController::class, 'store']);
-Route::get('/raw-material-receipts/{rawMaterialReceipt}', [RawMaterialReceiptController::class, 'show']);
-Route::post('/raw-material-receipts/{rawMaterialReceipt}/generate-document', [RawMaterialReceiptController::class, 'generateDocuments']);
+    Route::post('/raw-material-receipts', [RawMaterialReceiptController::class, 'store']);
+    Route::get('/raw-material-receipts/{rawMaterialReceipt}', [RawMaterialReceiptController::class, 'show']);
+    Route::post('/raw-material-receipts/{rawMaterialReceipt}/generate-document', [RawMaterialReceiptController::class, 'generateDocuments']);
+    Route::get('/traceability/lot', [TraceabilityController::class, 'searchByLot']);
+    Route::get('/traceability/client', [TraceabilityController::class, 'searchByClient']);
+    Route::get('/traceability/order/{salesOrder}', [TraceabilityController::class, 'orderTrace']);
     // ─── Routes réservées par rôle ────────────────────────────
     Route::middleware('role:gerant')->group(function () {
         Route::get('settings', [SettingsController::class, 'index']);
