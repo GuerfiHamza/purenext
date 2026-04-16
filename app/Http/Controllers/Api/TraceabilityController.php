@@ -100,21 +100,21 @@ public function monthlyReport(Request $request)
         })->values();
 
     // --- Commandes livrées ce mois ---
-    $orders = SalesOrder::with('client')
-        ->where('status', 'delivered')
-        ->whereBetween('delivered_at', [$start, $end])
-        ->get();
+    // Remplacer la section commandes livrées :
+$orders = SalesOrder::where('status', 'delivered')
+    ->whereBetween('delivery_date', [$start, $end]) // ← delivery_date
+    ->get();
 
-    $deliveries = $orders->map(fn($o) => [
-        'order_ref' => $o->reference,
-        'client'    => $o->client?->name,
-        'amount'    => $o->total_amount,
-        'date'      => $o->delivered_at?->format('Y-m-d'),
-        'lot'       => $o->lot_number,
-    ]);
+$deliveries = $orders->map(fn($o) => [
+    'order_ref' => $o->order_number,        // ← order_number
+    'client'    => $o->client_name,         // ← client_name direct
+    'amount'    => $o->total_amount,
+    'date'      => $o->delivery_date?->format('Y-m-d'),
+    'lot'       => null,                    // ← pas de lot sur SalesOrder
+]);
 
-    // --- Clients uniques ---
-    $uniqueClients = $orders->pluck('client.name')->filter()->unique()->values();
+// Et clients uniques :
+$uniqueClients = $orders->pluck('client_name')->filter()->unique()->values();
 
     // --- Alertes ---
     $alerts = [];
