@@ -5,7 +5,9 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; }
-
+  @page {
+    margin-bottom: 30px;
+  }
   /* ── Header ── */
   .doc-header { background:#16a34a; color:white; padding:16px 20px; display:table; width:100%; }
   .company-block { display:table-cell; vertical-align:top; width:65%; }
@@ -55,8 +57,17 @@
   .notes-box p { font-size:9px; color:#6b7280; }
 
   /* ── Footer ── */
-  .doc-footer { margin-top:30px; border-top:1.5px solid #16a34a; padding-top:8px;
-                text-align:center; font-size:8px; color:#9ca3af; }
+  .doc-footer {
+    position: fixed;
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
+    padding-top: 6px;
+    text-align: center;
+    font-size: 8px;
+    color: #9ca3af;
+  }
   .footer-note { font-style:italic; margin-bottom:3px; color:#6b7280; }
 
   /* ── Badge ── */
