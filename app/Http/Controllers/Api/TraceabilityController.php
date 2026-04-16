@@ -75,8 +75,8 @@ class TraceabilityController extends Controller
             return [
                 'lot' => $p->lot_number,
                 'recipe' => $p->recipe?->name,
-                'quantity' => $p->quantity,
-                'unit' => $p->unit,
+                'quantity' => $p->input_qty_kg, // ← input_qty_kg
+                'unit' => 'kg', // ← fixe
                 'date' => $p->started_at?->format('Y-m-d'),
                 'status' => $p->status,
             ];
@@ -100,19 +100,18 @@ class TraceabilityController extends Controller
             })
             ->values();
 
-        // --- Commandes livrées ce mois ---
-        // Remplacer la section commandes livrées :
-        $orders = SalesOrder::where('status', 'delivered')
-            ->whereBetween('delivery_date', [$start, $end]) // ← delivery_date
+        $orders = SalesOrder::with('items.finishedGood.productionRun')
+            ->where('status', 'delivered')
+            ->whereBetween('delivery_date', [$start, $end])
             ->get();
 
         $deliveries = $orders->map(
             fn($o) => [
-                'order_ref' => $o->order_number, // ← order_number
-                'client' => $o->client_name, // ← client_name direct
+                'order_ref' => $o->order_number,
+                'client' => $o->client_name,
                 'amount' => $o->total_amount,
                 'date' => $o->delivery_date?->format('Y-m-d'),
-                'lot' => null, // ← pas de lot sur SalesOrder
+                'lot' => $o->items->first()?->finishedGood?->productionRun?->lot_number ?? '—',
             ],
         );
 
@@ -123,7 +122,7 @@ class TraceabilityController extends Controller
         $alerts = [];
 
         // Lots sans commande livrée associée
-        $deliveredLots = $orders->pluck('lot_number')->filter()->unique();
+        $deliveredLots = $orders->flatMap(fn($o) => $o->items->map(fn($i) => $i->finishedGood?->productionRun?->lot_number))->filter()->unique();
         $untracedLots = $lots->filter(fn($l) => !$deliveredLots->contains($l['lot']));
         foreach ($untracedLots as $l) {
             $alerts[] = [
