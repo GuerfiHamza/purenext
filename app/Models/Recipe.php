@@ -44,4 +44,8 @@ class Recipe extends Model
     {
         return $this->hasMany(ProductionRun::class);
     }
+    public function finishedGoods(): HasManyThrough
+{
+    return $this->hasManyThrough(FinishedGood::class, ProductionRun::class);
+}
 }
