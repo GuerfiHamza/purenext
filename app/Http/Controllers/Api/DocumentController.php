@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Services\DocumentService;
 use App\Models\Document;
 use Illuminate\Http\Request;
