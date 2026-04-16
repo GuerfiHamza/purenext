@@ -70,9 +70,23 @@ class DocumentService
     }
     public function generateReception(string $type, \App\Models\RawMaterialReceipt $receipt, int $userId): \App\Models\Document
     {
-        // Pas de dédoublonnage pour les réceptions — on peut imprimer plusieurs étiquettes
-        $settings = $this->getSettings();
-        $reference = $this->generateReference($type);
+        $existing = Document::where('type', $type)
+        ->where('documentable_type', \App\Models\RawMaterialReceipt::class)
+        ->where('documentable_id', $receipt->id)
+        ->first();
+
+    if ($existing) {
+        if ($existing->file_path && Storage::disk('public')->exists($existing->file_path)) {
+            return $existing;
+        }
+        // Fichier supprimé du disque → supprime l'entrée et régénère
+        $existing->delete();
+    }
+
+    // ── Génération normale ────────────────────────────────────
+    $settings  = $this->getSettings();
+    $reference = $this->generateReference($type);
+
 
         $data = [
             'receipt_number' => $receipt->receipt_number,
