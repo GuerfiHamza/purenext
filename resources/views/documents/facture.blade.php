@@ -6,7 +6,7 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; }
   @page {
-    margin-bottom: 30px;
+    margin-bottom: 110px;
   }
   /* ── Header ── */
   .doc-header { background:#16a34a; color:white; padding:16px 20px; display:table; width:100%; }
