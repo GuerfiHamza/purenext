@@ -50,4 +50,8 @@ class ProductionRun extends Model
     {
         return $this->status === 'completed';
     }
+    public function rawMaterial(): BelongsTo
+{
+    return $this->belongsTo(RawMaterial::class);
+}
 }
