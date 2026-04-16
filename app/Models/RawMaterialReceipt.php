@@ -32,28 +32,28 @@ class RawMaterialReceipt extends Model
     }
 
     // Après réception acceptée → met à jour le stock MP
-    public function applyToStock(): void
-    {
-        if ($this->decision === 'accepted' || $this->decision === 'accepted_reserve') {
-            $rawMaterial = $this->rawMaterial;
-            $stockBefore = (float) $rawMaterial->quantity_in_stock;
-            $stockAfter  = $stockBefore + (float) $this->quantity;
+public function applyToStock(): void
+{
+    if ($this->decision === 'accepted' || $this->decision === 'accepted_reserve') {
+        $rawMaterial = $this->rawMaterial;
+        $stockBefore = (float) $rawMaterial->quantity_in_stock;
+        $stockAfter  = $stockBefore + (float) $this->quantity;
 
-            $rawMaterial->increment('quantity_in_stock', $this->quantity);
+        $rawMaterial->increment('quantity_in_stock', $this->quantity);
 
-            StockMovement::create([
-                'movable_type' => RawMaterial::class,
-                'movable_id'   => $this->raw_material_id,
-                'type'         => 'in',
-                'quantity'     => $this->quantity,
-                'unit'         => $this->unit,
-                'stock_before' => $stockBefore,
-                'stock_after'  => $stockAfter,
-                'reason'       => "Réception {$this->receipt_number} — Lot fournisseur : " . ($this->supplier_lot ?? 'N/A'),
-                'source_type'  => RawMaterialReceipt::class,
-                'source_id'    => $this->id,
-                'user_id'      => $this->received_by,
-            ]);
-        }
+        StockMovement::create([
+            'movable_type' => 'raw_material',         // ← valeur enum courte
+            'movable_id'   => $this->raw_material_id,
+            'type'         => 'in',
+            'quantity'     => $this->quantity,
+            'unit'         => $this->unit,
+            'stock_before' => $stockBefore,
+            'stock_after'  => $stockAfter,
+            'reason'       => "Réception {$this->receipt_number} — Lot fournisseur : " . ($this->supplier_lot ?? 'N/A'),
+            'source_type'  => 'receipt',              // ← valeur enum courte
+            'source_id'    => $this->id,
+            'user_id'      => $this->received_by,
+        ]);
     }
+}
 }
