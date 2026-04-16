@@ -65,7 +65,7 @@ public function monthlyReport(Request $request)
 
     // --- Lots produits ce mois ---
     $productions = ProductionRun::with(['recipe', 'stockMovements'])
-        ->whereBetween('produced_at', [$start, $end])
+        ->whereBetween('started_at', [$start, $end])
         ->whereNotNull('lot_number')
         ->get();
 
@@ -75,7 +75,7 @@ public function monthlyReport(Request $request)
             'recipe'     => $p->recipe?->name,
             'quantity'   => $p->quantity,
             'unit'       => $p->unit,
-            'date'       => $p->produced_at?->format('Y-m-d'),
+            'date'       => $p->started_at?->format('Y-m-d'),
             'status'     => $p->status,
         ];
     });
@@ -143,7 +143,7 @@ public function monthlyReport(Request $request)
     }
 
     // Productions sans lot
-    $noLot = ProductionRun::whereBetween('produced_at', [$start, $end])
+    $noLot = ProductionRun::whereBetween('started_at', [$start, $end])
         ->whereNull('lot_number')
         ->get();
     foreach ($noLot as $p) {
