@@ -8,6 +8,8 @@ use App\Models\FinishedGood;
 use App\Models\ProductionRun;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\StockMovement;
+use App\Models\RawMaterialReceipt;
 
 class TraceabilityController extends Controller
 {
