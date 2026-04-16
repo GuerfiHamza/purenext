@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; }
-
-  .label-wrap { width:148mm; height:98mm; padding:0; position:relative; overflow:hidden; }
+body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; margin:0; padding:0; }
+  .label-wrap { width:100%; height:98mm; padding:0; position:relative; overflow:hidden; }
 
   /* Header */
   .label-header { background:#1a3a1a; color:white; padding:4mm 5mm; }
