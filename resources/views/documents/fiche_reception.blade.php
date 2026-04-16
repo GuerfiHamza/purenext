@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; }
+  body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:10px }
 
   @page { margin: 15mm 15mm 25mm 15mm; }
 
