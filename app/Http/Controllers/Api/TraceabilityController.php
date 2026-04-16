@@ -56,7 +56,120 @@ class TraceabilityController extends Controller
 
         return response()->json($orders);
     }
+public function monthlyReport(Request $request)
+{
+    $month = $request->input('month', now()->format('Y-m')); // ex: "2026-04"
+    $start = Carbon::parse($month . '-01')->startOfMonth();
+    $end   = Carbon::parse($month . '-01')->endOfMonth();
 
+    // --- Lots produits ce mois ---
+    $productions = ProductionRun::with(['recipe', 'stockMovements'])
+        ->whereBetween('produced_at', [$start, $end])
+        ->whereNotNull('lot_number')
+        ->get();
+
+    $lots = $productions->map(function ($p) {
+        return [
+            'lot'        => $p->lot_number,
+            'recipe'     => $p->recipe?->name,
+            'quantity'   => $p->quantity,
+            'unit'       => $p->unit,
+            'date'       => $p->produced_at?->format('Y-m-d'),
+            'status'     => $p->status,
+        ];
+    });
+
+    // --- MP utilisées ce mois ---
+    $rawMovements = StockMovement::with('movable')
+        ->where('type', 'out')
+        ->where('source_type', ProductionRun::class)
+        ->whereBetween('created_at', [$start, $end])
+        ->get()
+        ->groupBy('movable_id')
+        ->map(function ($mvts) {
+            $first = $mvts->first();
+            return [
+                'raw_material' => $first->movable?->name ?? 'Inconnu',
+                'total_used'   => $mvts->sum('quantity'),
+                'unit'         => $first->unit,
+                'movements'    => $mvts->count(),
+            ];
+        })->values();
+
+    // --- Commandes livrées ce mois ---
+    $orders = SalesOrder::with('client')
+        ->where('status', 'delivered')
+        ->whereBetween('delivered_at', [$start, $end])
+        ->get();
+
+    $deliveries = $orders->map(fn($o) => [
+        'order_ref' => $o->reference,
+        'client'    => $o->client?->name,
+        'amount'    => $o->total_amount,
+        'date'      => $o->delivered_at?->format('Y-m-d'),
+        'lot'       => $o->lot_number,
+    ]);
+
+    // --- Clients uniques ---
+    $uniqueClients = $orders->pluck('client.name')->filter()->unique()->values();
+
+    // --- Alertes ---
+    $alerts = [];
+
+    // Lots sans commande livrée associée
+    $deliveredLots = $orders->pluck('lot_number')->filter()->unique();
+    $untracedLots = $lots->filter(fn($l) => !$deliveredLots->contains($l['lot']));
+    foreach ($untracedLots as $l) {
+        $alerts[] = [
+            'type'    => 'lot_non_trace',
+            'level'   => 'warning',
+            'message' => "Lot {$l['lot']} ({$l['recipe']}) produit le {$l['date']} sans commande livrée associée.",
+            'lot'     => $l['lot'],
+        ];
+    }
+
+    // Réceptions MP sans lot fournisseur
+    $receptions = RawMaterialReceipt::whereBetween('reception_date', [$start, $end])
+        ->whereNull('supplier_lot')
+        ->get();
+    foreach ($receptions as $r) {
+        $alerts[] = [
+            'type'    => 'reception_sans_lot',
+            'level'   => 'error',
+            'message' => "Réception {$r->receipt_number} sans lot fournisseur (MP: {$r->supplier_name}).",
+            'receipt' => $r->receipt_number,
+        ];
+    }
+
+    // Productions sans lot
+    $noLot = ProductionRun::whereBetween('produced_at', [$start, $end])
+        ->whereNull('lot_number')
+        ->get();
+    foreach ($noLot as $p) {
+        $alerts[] = [
+            'type'    => 'production_sans_lot',
+            'level'   => 'error',
+            'message' => "Production #{$p->id} ({$p->recipe?->name}) sans numéro de lot.",
+        ];
+    }
+
+    return response()->json([
+        'month'           => $month,
+        'lots_produced'   => $lots,
+        'raw_materials'   => $rawMovements,
+        'deliveries'      => $deliveries,
+        'unique_clients'  => $uniqueClients,
+        'alerts'          => $alerts,
+        'summary' => [
+            'total_lots'       => $lots->count(),
+            'total_deliveries' => $deliveries->count(),
+            'total_clients'    => $uniqueClients->count(),
+            'total_alerts'     => count($alerts),
+            'alert_errors'     => collect($alerts)->where('level', 'error')->count(),
+            'alert_warnings'   => collect($alerts)->where('level', 'warning')->count(),
+        ],
+    ]);
+}
     // Trace complète d'une commande — aval + amont
     public function orderTrace(SalesOrder $salesOrder)
     {

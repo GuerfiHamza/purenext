@@ -88,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/traceability/lot', [TraceabilityController::class, 'searchByLot']);
     Route::get('/traceability/client', [TraceabilityController::class, 'searchByClient']);
     Route::get('/traceability/order/{salesOrder}', [TraceabilityController::class, 'orderTrace']);
+    Route::get('/traceability/monthly-report', [TraceabilityController::class, 'monthlyReport']);
     // ─── Routes réservées par rôle ────────────────────────────
     Route::middleware('role:gerant')->group(function () {
         Route::get('settings', [SettingsController::class, 'index']);
