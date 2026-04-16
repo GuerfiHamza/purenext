@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <style>
-      @page {
-    margin-bottom: 30px;
-  }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family: DejaVu Sans, sans-serif; font-size:11px; color:#1a1a1a; padding:0; }
 
@@ -58,17 +55,8 @@
   .notes-box p { font-size:9px; color:#6b7280; }
 
   /* ── Footer ── */
- .doc-footer {
-    position: fixed;
-    bottom: -20px;
-    left: 0;
-    right: 0;
-    border-top: 1.5px solid #92400e; /* change la couleur selon le doc */
-    padding-top: 6px;
-    text-align: center;
-    font-size: 8px;
-    color: #9ca3af;
-  }
+  .doc-footer { margin-top:30px; border-top:1.5px solid #16a34a; padding-top:8px;
+                text-align:center; font-size:8px; color:#9ca3af; }
   .footer-note { font-style:italic; margin-bottom:3px; color:#6b7280; }
 
   /* ── Badge ── */
@@ -204,21 +192,8 @@
   @endif
 
   {{-- Footer --}}
-
+  
 </div>
-  <div class="doc-footer">
-    @if(!empty($settings['invoice_notes']))
-      <p class="footer-note">{{ $settings['invoice_notes'] }}</p>
-    @endif
-    <p>
-      {{ $settings['company_name'] ?? 'PURENEXT SARL' }}
-      @if(!empty($settings['company_address'])) — {{ $settings['company_address'] }} @endif
-      @if(!empty($settings['company_phone'])) — {{ $settings['company_phone'] }} @endif
-    </p>
-    @if(!empty($settings['company_rib']) && !empty($settings['company_bank']))
-      <p>RIB : {{ $settings['company_rib'] }} — {{ $settings['company_bank'] }}</p>
-    @endif
-    <p style="margin-top:3px;">{{ $reference }}</p>
-  </div>
+@include('documents.partials.footer')
 </body>
 </html>
