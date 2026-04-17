@@ -14,14 +14,13 @@ use Illuminate\Support\Facades\DB;
 class SalesOrderController extends Controller
 {
     public function index(): JsonResponse
-    {
-        $orders = SalesOrder::with(['commercial', 'items.finishedGood.brand'])
-            ->latest()
-            ->paginate(20);
+{
+    $orders = SalesOrder::with(['commercial', 'items.finishedGood.brand', 'items.packagingBox'])
+        ->latest()
+        ->paginate(20);
 
-        return response()->json($orders);
-    }
-
+    return response()->json($orders);
+}
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
