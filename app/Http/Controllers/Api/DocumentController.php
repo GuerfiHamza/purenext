@@ -30,10 +30,11 @@ class DocumentController extends Controller
             'items.*.unit' => 'required_if:type,bon_commande|string',
             'items.*.unit_price' => 'nullable|numeric|min:0',
             'delivery_date' => 'nullable|string',
+            'expiry_date' => 'nullable|date',  
             'notes' => 'nullable|string',
         ]);
 
-        $extra = $request->only(['items', 'delivery_date', 'notes']);
+        $extra = $request->only(['items', 'delivery_date', 'notes', 'expiry_date']);
 
         $wasExisting = false;
 

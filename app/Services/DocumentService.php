@@ -37,7 +37,7 @@ class DocumentService
         // ── Génération normale ────────────────────────────────────
         [$documentable, $data, $view] = match ($type) {
             'rapport_production' => $this->prepareProductionReport($documentableId),
-            'certificat_conformite' => $this->prepareCertificat($documentableId),
+            'certificat_conformite' => $this->prepareCertificat($documentableId, $extra),
             'fiche_technique' => $this->prepareFicheTechnique($documentableId),
             'facture' => $this->prepareFacture($documentableId),
             'bon_livraison' => $this->prepareBonLivraison($documentableId),
@@ -224,15 +224,21 @@ class DocumentService
 
         return [$run, $data, 'rapport_production'];
     }
-        private function prepareCertificat(int $id): array
+    private function prepareCertificat(int $id, array $extra = []): array
     {
         $run = ProductionRun::with(['recipe', 'packaging'])->findOrFail($id);
 
-        // Quantité : préférer packets réels, sinon estimés, sinon input kg
         $quantity = match (true) {
             !is_null($run->output_packets_actual) => $run->output_packets_actual . ' unités',
             !is_null($run->output_packets_estimated) => $run->output_packets_estimated . ' unités (estimé)',
             default => $run->input_qty_kg . ' kg',
+        };
+
+        // Priorité : date manuelle > calculée depuis shelf_life > '—'
+        $expiryDate = match (true) {
+            !empty($extra['expiry_date']) => Carbon::parse($extra['expiry_date'])->format('d/m/Y'),
+            $run->recipe->shelf_life_value && $run->started_at => Carbon::parse($run->started_at)->addDays($run->recipe->shelf_life_value)->format('d/m/Y'),
+            default => '—',
         };
 
         $data = [
@@ -242,7 +248,7 @@ class DocumentService
             'packaging' => optional($run->packaging)->packet_label ?? '—',
             'quantity' => $quantity,
             'production_date' => $run->started_at ? Carbon::parse($run->started_at)->format('d/m/Y') : '—',
-            'expiry_date' => $run->recipe->shelf_life_value && $run->started_at ? Carbon::parse($run->started_at)->addDays($run->recipe->shelf_life_value)->format('d/m/Y') : '—',
+            'expiry_date' => $expiryDate,
             'shelf_life' => $run->recipe->shelf_life_value ? "{$run->recipe->shelf_life_value} {$run->recipe->shelf_life_unit}" : '—',
             'operator' => optional($run->operator)->name ?? '—',
         ];
