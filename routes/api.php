@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\RawMaterialReceiptController;
 use App\Http\Controllers\Api\TraceabilityController;
 use App\Http\Controllers\Api\BoxController;
+use App\Http\Controllers\Api\ClientController;
 
 use Illuminate\Support\Facades\Route;
 // Routes publiques
@@ -102,6 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pack',                        [BoxController::class, 'pack']);
     Route::post('/out',                         [BoxController::class, 'out']);
 });
+Route::apiResource('clients', ClientController::class);
+
     // ─── Routes réservées par rôle ────────────────────────────
     Route::middleware('role:gerant')->group(function () {
         Route::get('settings', [SettingsController::class, 'index']);
