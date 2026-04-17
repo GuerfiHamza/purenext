@@ -157,7 +157,7 @@
     <thead>
       <tr>
         <th style="width:30px;">#</th>
-        <th style="width:280px;">Produit</th>
+        <th style="width:150px!important;">Produit</th>
         <th>Lot</th>
         <th>Format</th>
         <th class="r">Qté</th>
