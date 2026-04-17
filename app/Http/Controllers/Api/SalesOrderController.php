@@ -85,7 +85,7 @@ class SalesOrderController extends Controller
 
     public function show(SalesOrder $salesOrder): JsonResponse
     {
-return response()->json($salesOrder->load(['commercial', 'items.finishedGood.brand', 'items.packagingBox']));
+return response()->json($salesOrder->load(['commercial', 'items.finishedGood.brand', 'items.packagingBox.finishedGood']));
     }
 
     public function update(Request $request, SalesOrder $salesOrder): JsonResponse
