@@ -286,7 +286,7 @@ class DocumentService
 
     private function prepareFacture(int $id): array
     {
-        $order = SalesOrder::with(['items.finishedGood', 'commercial'])->findOrFail($id);
+        $order = SalesOrder::with(['items.finishedGood', 'items.packagingBox.finishedGood', 'commercial'])->findOrFail($id);
         $settings = $this->getSettings();
 
         $subtotal = (float) $order->total_amount;
@@ -301,15 +301,15 @@ class DocumentService
             'order_number' => $order->order_number,
             'order_date' => $order->order_date->format('d/m/Y'),
             'delivery_date' => $order->delivery_date?->format('d/m/Y') ?? '—',
-            'client_name'    => $order->client_name,
-'client_phone'   => $order->client_phone ?? '—',
-'client_email'   => $order->client_email ?? '—',
-'client_address' => $order->client_address ?? '—',
-'client_type'    => $order->client_type ?? 'particulier',
-'client_rc'      => $order->client_rc ?? null,
-'client_nif'     => $order->client_nif ?? null,
-'client_nis'     => $order->client_nis ?? null,
-'client_ai'      => $order->client_ai ?? null,
+            'client_name' => $order->client_name,
+            'client_phone' => $order->client_phone ?? '—',
+            'client_email' => $order->client_email ?? '—',
+            'client_address' => $order->client_address ?? '—',
+            'client_type' => $order->client_type ?? 'particulier',
+            'client_rc' => $order->client_rc ?? null,
+            'client_nif' => $order->client_nif ?? null,
+            'client_nis' => $order->client_nis ?? null,
+            'client_ai' => $order->client_ai ?? null,
             'commercial' => optional($order->commercial)->name ?? '—',
             'notes' => $order->notes,
             'subtotal' => $this->fmtAmount($subtotal),
@@ -321,9 +321,9 @@ class DocumentService
             'items' => $order->items
                 ->map(
                     fn($i) => [
-                        'product' => optional($i->finishedGood)->product_name ?? '—',
-                        'lot' => optional($i->finishedGood)->batch_number ?? '—',
-                        'format' => optional($i->finishedGood)->packet_label ?? '—',
+                        'product' => $i->item_type === 'box' ? ($i->packagingBox?->name ?? '—') . ($i->packagingBox?->finishedGood?->product_name ? ' — ' . $i->packagingBox->finishedGood->product_name : '') : optional($i->finishedGood)->product_name ?? '—',
+                        'lot' => $i->item_type === 'box' ? $i->packagingBox?->label ?? '—' : optional($i->finishedGood)->batch_number ?? '—',
+                        'format' => $i->item_type === 'box' ? $i->packagingBox?->units_per_box . ' unités/boite' : optional($i->finishedGood)->packet_label ?? '—',
                         'quantity' => $i->quantity,
                         'unit_price' => $this->fmtAmount((float) $i->unit_price),
                         'total_price' => $this->fmtAmount((float) $i->quantity * (float) $i->unit_price),
@@ -337,7 +337,7 @@ class DocumentService
 
     private function prepareBonLivraison(int $id): array
     {
-        $order = SalesOrder::with(['items.finishedGood', 'commercial'])->findOrFail($id);
+        $order = SalesOrder::with(['items.finishedGood', 'items.packagingBox.finishedGood', 'commercial'])->findOrFail($id);
         $settings = $this->getSettings();
 
         $data = [
@@ -345,24 +345,24 @@ class DocumentService
             'order_number' => $order->order_number,
             'order_date' => $order->order_date->format('d/m/Y'),
             'delivery_date' => $order->delivery_date?->format('d/m/Y') ?? '—',
-            'client_name'    => $order->client_name,
-'client_phone'   => $order->client_phone ?? '—',
-'client_email'   => $order->client_email ?? '—',
-'client_address' => $order->client_address ?? '—',
-'client_type'    => $order->client_type ?? 'particulier',
-'client_rc'      => $order->client_rc ?? null,
-'client_nif'     => $order->client_nif ?? null,
-'client_nis'     => $order->client_nis ?? null,
-'client_ai'      => $order->client_ai ?? null,
+            'client_name' => $order->client_name,
+            'client_phone' => $order->client_phone ?? '—',
+            'client_email' => $order->client_email ?? '—',
+            'client_address' => $order->client_address ?? '—',
+            'client_type' => $order->client_type ?? 'particulier',
+            'client_rc' => $order->client_rc ?? null,
+            'client_nif' => $order->client_nif ?? null,
+            'client_nis' => $order->client_nis ?? null,
+            'client_ai' => $order->client_ai ?? null,
             'commercial' => optional($order->commercial)->name ?? '—',
             'notes' => $order->notes,
             'delivery_notes' => $settings['delivery_notes'] ?? '',
             'items' => $order->items
                 ->map(
                     fn($i) => [
-                        'product' => optional($i->finishedGood)->product_name ?? '—',
-                        'lot' => optional($i->finishedGood)->batch_number ?? '—',
-                        'format' => optional($i->finishedGood)->packet_label ?? '—',
+                        'product' => $i->item_type === 'box' ? ($i->packagingBox?->name ?? '—') . ($i->packagingBox?->finishedGood?->product_name ? ' — ' . $i->packagingBox->finishedGood->product_name : '') : optional($i->finishedGood)->product_name ?? '—',
+                        'lot' => $i->item_type === 'box' ? $i->packagingBox?->label ?? '—' : optional($i->finishedGood)->batch_number ?? '—',
+                        'format' => $i->item_type === 'box' ? $i->packagingBox?->units_per_box . ' unités/boite' : optional($i->finishedGood)->packet_label ?? '—',
                         'quantity' => $i->quantity,
                     ],
                 )
