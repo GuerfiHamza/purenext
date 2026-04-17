@@ -44,7 +44,7 @@ class SalesOrderController extends Controller
             'items.*.unit_price' => 'required|numeric|min:0',
         ]);
 
-        $order = DB::transaction(function () use ($validated) {
+$order = DB::transaction(function () use ($validated, $request) {
             $orderNumber = 'CMD-' . now()->format('Y') . '-' . str_pad(SalesOrder::whereYear('created_at', now()->year)->count() + 1, 4, '0', STR_PAD_LEFT);
 
             $order = SalesOrder::create([
