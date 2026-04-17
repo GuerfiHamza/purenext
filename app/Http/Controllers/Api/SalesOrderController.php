@@ -25,42 +25,44 @@ class SalesOrderController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'client_name'    => 'required|string|max:255',
-            'client_phone'   => 'nullable|string|max:20',
-            'client_email'   => 'nullable|email',
-            'client_address' => 'nullable|string',
-            'order_date'     => 'required|date',
-            'delivery_date'  => 'nullable|date|after_or_equal:order_date',
-            'notes'          => 'nullable|string',
-            'items'          => 'required|array|min:1',
+            'client_id' => 'nullable|exists:clients,id',
+            'client_type' => 'nullable|in:particulier,societe',
+            'client_rc' => 'nullable|string|max:50',
+            'client_nif' => 'nullable|string|max:50',
+            'client_nis' => 'nullable|string|max:50',
+            'client_ai' => 'nullable|string|max:50',
+            'order_date' => 'required|date',
+            'delivery_date' => 'nullable|date|after_or_equal:order_date',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
             'items.*.finished_good_id' => 'required|exists:finished_goods,id',
-            'items.*.quantity'         => 'required|integer|min:1',
-            'items.*.unit_price'       => 'required|numeric|min:0',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
         ]);
 
         $order = DB::transaction(function () use ($validated) {
-            $orderNumber = 'CMD-' . now()->format('Y') . '-' . str_pad(
-                SalesOrder::whereYear('created_at', now()->year)->count() + 1, 4, '0', STR_PAD_LEFT
-            );
+            $orderNumber = 'CMD-' . now()->format('Y') . '-' . str_pad(SalesOrder::whereYear('created_at', now()->year)->count() + 1, 4, '0', STR_PAD_LEFT);
 
             $order = SalesOrder::create([
-                'order_number'   => $orderNumber,
-                'client_name'    => $validated['client_name'],
-                'client_phone'   => $validated['client_phone'] ?? null,
-                'client_email'   => $validated['client_email'] ?? null,
-                'client_address' => $validated['client_address'] ?? null,
-                'order_date'     => $validated['order_date'],
-                'delivery_date'  => $validated['delivery_date'] ?? null,
-                'commercial_id'  => auth()->id(),
-                'notes'          => $validated['notes'] ?? null,
+                'order_number' => $orderNumber,
+                'client_id' => 'nullable|exists:clients,id',
+                'client_type' => 'nullable|in:particulier,societe',
+                'client_rc' => 'nullable|string|max:50',
+                'client_nif' => 'nullable|string|max:50',
+                'client_nis' => 'nullable|string|max:50',
+                'client_ai' => 'nullable|string|max:50',
+                'order_date' => $validated['order_date'],
+                'delivery_date' => $validated['delivery_date'] ?? null,
+                'commercial_id' => auth()->id(),
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             foreach ($validated['items'] as $item) {
                 SaleOrderItem::create([
-                    'sales_order_id'   => $order->id,
+                    'sales_order_id' => $order->id,
                     'finished_good_id' => $item['finished_good_id'],
-                    'quantity'         => $item['quantity'],
-                    'unit_price'       => $item['unit_price'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
                 ]);
             }
 
@@ -73,17 +75,15 @@ class SalesOrderController extends Controller
 
     public function show(SalesOrder $salesOrder): JsonResponse
     {
-        return response()->json(
-            $salesOrder->load(['commercial', 'items.finishedGood.brand'])
-        );
+        return response()->json($salesOrder->load(['commercial', 'items.finishedGood.brand']));
     }
 
     public function update(Request $request, SalesOrder $salesOrder): JsonResponse
     {
         $validated = $request->validate([
-            'status'        => 'sometimes|in:pending,confirmed,preparing,shipped,delivered,cancelled',
+            'status' => 'sometimes|in:pending,confirmed,preparing,shipped,delivered,cancelled',
             'delivery_date' => 'nullable|date',
-            'notes'         => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $salesOrder->update($validated);
@@ -99,24 +99,24 @@ class SalesOrderController extends Controller
 
         DB::transaction(function () use ($salesOrder) {
             foreach ($salesOrder->items as $item) {
-                $good        = FinishedGood::find($item->finished_good_id);
+                $good = FinishedGood::find($item->finished_good_id);
                 $stockBefore = $good->quantity_in_stock;
-                $stockAfter  = max(0, $stockBefore - $item->quantity);
+                $stockAfter = max(0, $stockBefore - $item->quantity);
 
                 $good->update(['quantity_in_stock' => $stockAfter]);
 
                 StockMovement::create([
                     'movable_type' => 'finished_good',
-                    'movable_id'   => $good->id,
-                    'type'         => 'out',
-                    'quantity'     => $item->quantity,
-                    'unit'         => 'piece',
+                    'movable_id' => $good->id,
+                    'type' => 'out',
+                    'quantity' => $item->quantity,
+                    'unit' => 'piece',
                     'stock_before' => $stockBefore,
-                    'stock_after'  => $stockAfter,
-                    'reason'       => "Livraison commande {$salesOrder->order_number}",
-                    'source_type'  => SalesOrder::class,
-                    'source_id'    => $salesOrder->id,
-                    'user_id'      => auth()->id(),
+                    'stock_after' => $stockAfter,
+                    'reason' => "Livraison commande {$salesOrder->order_number}",
+                    'source_type' => SalesOrder::class,
+                    'source_id' => $salesOrder->id,
+                    'user_id' => auth()->id(),
                 ]);
             }
 

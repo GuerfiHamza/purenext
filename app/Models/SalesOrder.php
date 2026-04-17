@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class SalesOrder extends Model
 {
     protected $fillable = [
-        'order_number', 'client_name', 'client_phone', 'client_email',
-        'client_address', 'order_date', 'delivery_date', 'status',
-        'total_amount', 'commercial_id', 'notes'
-    ];
+    'order_number', 'client_id', 'client_type', 'client_name', 'client_phone', 'client_email',
+    'client_address', 'client_rc', 'client_nif', 'client_nis', 'client_ai',
+    'order_date', 'delivery_date', 'status',
+    'total_amount', 'commercial_id', 'notes'
+];
 
     protected $casts = [
         'order_date' => 'date',
@@ -35,4 +36,8 @@ class SalesOrder extends Model
         $this->total_amount = $this->items()->sum('total_price');
         $this->save();
     }
+    public function client(): BelongsTo
+{
+    return $this->belongsTo(Client::class);
+}
 }
