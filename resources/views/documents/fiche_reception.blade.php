@@ -67,7 +67,7 @@
                          letter-spacing:.5px; margin-bottom:3px; }
   .storage-cell .value { font-size:16px; font-weight:bold; color:#1d4ed8; }
 
-  .sig-zone { display:table; width:100%; margin-top:30px; }
+  .sig-zone { display:table; width:100%; margin-top:30px; padding:20px; }
   .sig-box  { display:table-cell; width:50%; padding-right:20px; }
   .sig-label { font-size:9px; font-weight:bold; text-transform:uppercase;
                color:#9ca3af; margin-bottom:6px; }
