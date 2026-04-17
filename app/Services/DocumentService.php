@@ -226,7 +226,7 @@ class DocumentService
     }
     private function prepareCertificat(int $id, array $extra = []): array
     {
-        $run = ProductionRun::with(['recipe', 'packaging'])->findOrFail($id);
+        $run = ProductionRun::with(['recipe', 'packaging', 'finishedGood'])->findOrFail($id);
 
         $quantity = match (true) {
             !is_null($run->output_packets_actual) => $run->output_packets_actual . ' unités',
@@ -234,9 +234,9 @@ class DocumentService
             default => $run->input_qty_kg . ' kg',
         };
 
-        // Priorité : date manuelle > calculée depuis shelf_life > '—'
         $expiryDate = match (true) {
             !empty($extra['expiry_date']) => Carbon::parse($extra['expiry_date'])->format('d/m/Y'),
+            !is_null($run->finishedGood?->expiry_date) => Carbon::parse($run->finishedGood->expiry_date)->format('d/m/Y'),
             $run->recipe->shelf_life_value && $run->started_at => Carbon::parse($run->started_at)->addDays($run->recipe->shelf_life_value)->format('d/m/Y'),
             default => '—',
         };
