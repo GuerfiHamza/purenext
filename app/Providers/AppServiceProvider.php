@@ -25,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
         'production_run' => \App\Models\ProductionRun::class,
         'finished_good'  => \App\Models\FinishedGood::class,
         'supplier'       => \App\Models\Supplier::class,
+         'packaging_box'  => \App\Models\PackagingBox::class,
+        'finished_good'  => \App\Models\FinishedGood::class,  // si pas encore présent
     ]);
     }
 }

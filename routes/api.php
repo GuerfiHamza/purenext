@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\RawMaterialReceiptController;
 use App\Http\Controllers\Api\TraceabilityController;
+use App\Http\Controllers\Api\BoxController;
+
 use Illuminate\Support\Facades\Route;
 // Routes publiques
 Route::post('login', [AuthController::class, 'login']);
@@ -89,6 +91,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/traceability/client', [TraceabilityController::class, 'searchByClient']);
     Route::get('/traceability/order/{salesOrder}', [TraceabilityController::class, 'orderTrace']);
     Route::get('/traceability/monthly-report', [TraceabilityController::class, 'monthlyReport']);
+    Route::prefix('boxes')->group(function () {
+    Route::get('/',                             [BoxController::class, 'index']);
+    Route::post('/',                            [BoxController::class, 'store']);
+    Route::get('/movements',                    [BoxController::class, 'allMovements']);
+    Route::get('/{packagingBox}',               [BoxController::class, 'show']);
+    Route::get('/{packagingBox}/movements',     [BoxController::class, 'movements']);
+    Route::post('/pack',                        [BoxController::class, 'pack']);
+    Route::post('/out',                         [BoxController::class, 'out']);
+});
     // ─── Routes réservées par rôle ────────────────────────────
     Route::middleware('role:gerant')->group(function () {
         Route::get('settings', [SettingsController::class, 'index']);
