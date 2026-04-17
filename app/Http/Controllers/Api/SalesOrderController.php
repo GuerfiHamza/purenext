@@ -39,10 +39,10 @@ class SalesOrderController extends Controller
             'delivery_date' => 'nullable|date|after_or_equal:order_date',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
-            'items.*.product_id'  => 'required|integer|min:1',
-'items.*.item_type'   => 'required|in:packet,box',
-'items.*.quantity'    => 'required|integer|min:1',
-'items.*.unit_price'  => 'required|numeric|min:0',
+            'items.*.product_id' => 'required|integer|min:1',
+            'items.*.item_type' => 'required|in:packet,box',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
         ]);
 
         $order = DB::transaction(function () use ($validated, $request) {
@@ -75,7 +75,6 @@ class SalesOrderController extends Controller
                     'item_type' => $itemType,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
-                    'total_price' => $item['quantity'] * $item['unit_price'],
                 ]);
             }
             $order->recalculateTotal();
@@ -111,46 +110,50 @@ class SalesOrderController extends Controller
 
         DB::transaction(function () use ($salesOrder) {
             foreach ($salesOrder->items as $item) {
-    if ($item->item_type === 'box') {
-        $stock = \App\Models\BoxStock::where('packaging_box_id', $item->packaging_box_id)->first();
-        if (!$stock) continue;
-        $before = $stock->quantity_in_stock;
-        $after  = max(0, $before - $item->quantity);
-        $stock->update(['quantity_in_stock' => $after]);
+                if ($item->item_type === 'box') {
+                    $stock = \App\Models\BoxStock::where('packaging_box_id', $item->packaging_box_id)->first();
+                    if (!$stock) {
+                        continue;
+                    }
+                    $before = $stock->quantity_in_stock;
+                    $after = max(0, $before - $item->quantity);
+                    $stock->update(['quantity_in_stock' => $after]);
 
-        \App\Models\BoxMovement::create([
-            'packaging_box_id' => $item->packaging_box_id,
-            'type'             => 'out',
-            'quantity'         => $item->quantity,
-            'stock_before'     => $before,
-            'stock_after'      => $after,
-            'reason'           => "Livraison commande {$salesOrder->order_number}",
-            'source_type'      => SalesOrder::class,
-            'source_id'        => $salesOrder->id,
-            'user_id'          => auth()->id(),
-        ]);
-    } else {
-        $good = FinishedGood::find($item->finished_good_id);
-        if (!$good) continue;
-        $stockBefore = $good->quantity_in_stock;
-        $stockAfter  = max(0, $stockBefore - $item->quantity);
-        $good->update(['quantity_in_stock' => $stockAfter]);
+                    \App\Models\BoxMovement::create([
+                        'packaging_box_id' => $item->packaging_box_id,
+                        'type' => 'out',
+                        'quantity' => $item->quantity,
+                        'stock_before' => $before,
+                        'stock_after' => $after,
+                        'reason' => "Livraison commande {$salesOrder->order_number}",
+                        'source_type' => SalesOrder::class,
+                        'source_id' => $salesOrder->id,
+                        'user_id' => auth()->id(),
+                    ]);
+                } else {
+                    $good = FinishedGood::find($item->finished_good_id);
+                    if (!$good) {
+                        continue;
+                    }
+                    $stockBefore = $good->quantity_in_stock;
+                    $stockAfter = max(0, $stockBefore - $item->quantity);
+                    $good->update(['quantity_in_stock' => $stockAfter]);
 
-        StockMovement::create([
-            'movable_type' => 'finished_good',
-            'movable_id'   => $good->id,
-            'type'         => 'out',
-            'quantity'     => $item->quantity,
-            'unit'         => 'piece',
-            'stock_before' => $stockBefore,
-            'stock_after'  => $stockAfter,
-            'reason'       => "Livraison commande {$salesOrder->order_number}",
-            'source_type'  => SalesOrder::class,
-            'source_id'    => $salesOrder->id,
-            'user_id'      => auth()->id(),
-        ]);
-    }
-}
+                    StockMovement::create([
+                        'movable_type' => 'finished_good',
+                        'movable_id' => $good->id,
+                        'type' => 'out',
+                        'quantity' => $item->quantity,
+                        'unit' => 'piece',
+                        'stock_before' => $stockBefore,
+                        'stock_after' => $stockAfter,
+                        'reason' => "Livraison commande {$salesOrder->order_number}",
+                        'source_type' => SalesOrder::class,
+                        'source_id' => $salesOrder->id,
+                        'user_id' => auth()->id(),
+                    ]);
+                }
+            }
 
             $salesOrder->update(['status' => 'delivered']);
         });

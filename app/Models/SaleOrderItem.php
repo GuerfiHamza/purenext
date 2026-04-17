@@ -9,7 +9,7 @@ class SaleOrderItem extends Model
 {
 protected $fillable = [
     'sales_order_id', 'finished_good_id', 'packaging_box_id',
-    'item_type', 'quantity', 'unit_price', 'total_price'
+    'item_type', 'quantity', 'unit_price'
 ];
 
     protected $casts = [
