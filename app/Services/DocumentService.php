@@ -228,6 +228,9 @@ class DocumentService
     {
         $run = ProductionRun::with(['recipe', 'packaging', 'finishedGood'])->findOrFail($id);
 
+        // Chercher le finished_good par batch_number ou lot_number si la relation directe échoue
+        $finishedGood = $run->finishedGood ?? \App\Models\FinishedGood::where('batch_number', $run->lot_number)->orWhere('batch_number', $run->batch_number)->first();
+
         $quantity = match (true) {
             !is_null($run->output_packets_actual) => $run->output_packets_actual . ' unités',
             !is_null($run->output_packets_estimated) => $run->output_packets_estimated . ' unités (estimé)',
@@ -236,7 +239,7 @@ class DocumentService
 
         $expiryDate = match (true) {
             !empty($extra['expiry_date']) => Carbon::parse($extra['expiry_date'])->format('d/m/Y'),
-            !is_null($run->finishedGood?->expiry_date) => Carbon::parse($run->finishedGood->expiry_date)->format('d/m/Y'),
+            !is_null($finishedGood?->expiry_date) => Carbon::parse($finishedGood->expiry_date)->format('d/m/Y'),
             $run->recipe->shelf_life_value && $run->started_at => Carbon::parse($run->started_at)->addDays($run->recipe->shelf_life_value)->format('d/m/Y'),
             default => '—',
         };

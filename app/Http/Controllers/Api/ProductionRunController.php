@@ -156,18 +156,8 @@ class ProductionRunController extends Controller
                 $existingGood->update([
                     'quantity_in_stock' => $existingGood->quantity_in_stock + $validated['output_packets_actual'],
                     'expiry_date' => $validated['expiry_date'] ?? $existingGood->expiry_date,
-                ]);
-            } else {
-                FinishedGood::create([
-                    'product_name' => $productionRun->recipe->name . ' ' . $productionRun->packaging->packet_label,
-                    'brand_id' => $productionRun->recipe->brand_id,
                     'production_run_id' => $productionRun->id,
                     'batch_number' => $productionRun->lot_number ?? $productionRun->batch_number,
-                    'packet_size_g' => $productionRun->packaging->packet_size_g,
-                    'packet_label' => $productionRun->packaging->packet_label,
-                    'quantity_in_stock' => $validated['output_packets_actual'],
-                    'production_date' => now()->toDateString(),
-                    'expiry_date' => $validated['expiry_date'] ?? null,
                 ]);
             }
         });
