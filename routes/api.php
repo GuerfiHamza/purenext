@@ -96,6 +96,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/',                            [BoxController::class, 'store']);
     Route::get('/movements',                    [BoxController::class, 'allMovements']);
     Route::get('/{packagingBox}',               [BoxController::class, 'show']);
+    Route::put('/{packagingBox}',               [BoxController::class, 'update']);
+    Route::delete('/{packagingBox}',            [BoxController::class, 'destroy']);
     Route::get('/{packagingBox}/movements',     [BoxController::class, 'movements']);
     Route::post('/pack',                        [BoxController::class, 'pack']);
     Route::post('/out',                         [BoxController::class, 'out']);

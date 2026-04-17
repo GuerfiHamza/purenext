@@ -78,6 +78,58 @@ class BoxController extends Controller
         );
     }
 
+    /**
+     * Modifier une boite (nom, label, units_per_box, min_stock_alert).
+     */
+    public function update(Request $request, PackagingBox $packagingBox): JsonResponse
+    {
+        $validated = $request->validate([
+            'name'            => 'sometimes|string|max:100',
+            'units_per_box'   => 'sometimes|integer|min:1',
+            'label'           => 'nullable|string|max:50',
+            'min_stock_alert' => 'nullable|integer|min:0',
+            'is_active'       => 'sometimes|boolean',
+        ]);
+
+        DB::transaction(function () use ($validated, $packagingBox) {
+            $packagingBox->update(array_filter([
+                'name'          => $validated['name'] ?? null,
+                'units_per_box' => $validated['units_per_box'] ?? null,
+                'label'         => $validated['label'] ?? null,
+                'is_active'     => $validated['is_active'] ?? null,
+            ], fn($v) => !is_null($v)));
+
+            if (isset($validated['min_stock_alert'])) {
+                $packagingBox->stock()->update(['min_stock_alert' => $validated['min_stock_alert']]);
+            }
+        });
+
+        return response()->json(
+            $this->formatBox($packagingBox->fresh(['finishedGood.brand', 'stock']))
+        );
+    }
+
+    /**
+     * Supprimer (soft-delete via is_active = false).
+     * Suppression physique uniquement si stock = 0 et aucun mouvement.
+     */
+    public function destroy(PackagingBox $packagingBox): JsonResponse
+    {
+        $hasStock     = ($packagingBox->stock?->quantity_in_stock ?? 0) > 0;
+        $hasMovements = $packagingBox->movements()->exists();
+
+        if ($hasStock || $hasMovements) {
+            // Soft-delete : désactiver seulement
+            $packagingBox->update(['is_active' => false]);
+            return response()->json(['message' => 'Boite désactivée (stock ou historique existant).']);
+        }
+
+        $packagingBox->stock()->delete();
+        $packagingBox->delete();
+
+        return response()->json(null, 204);
+    }
+
     // ──────────────────────────────────────────
     // CONDITIONNEMENT : packets → boites
     // ──────────────────────────────────────────
