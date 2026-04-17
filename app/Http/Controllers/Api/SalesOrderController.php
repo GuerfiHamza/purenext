@@ -39,7 +39,6 @@ class SalesOrderController extends Controller
             'delivery_date' => 'nullable|date|after_or_equal:order_date',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
-            'items.*.finished_good_id' => 'required|exists:finished_goods,id',
             'items.*.product_id'  => 'required|integer|min:1',
 'items.*.item_type'   => 'required|in:packet,box',
 'items.*.quantity'    => 'required|integer|min:1',
