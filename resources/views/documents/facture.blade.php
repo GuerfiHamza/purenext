@@ -122,6 +122,11 @@
         Commercial : {{ $data['commercial'] }}<br>
         @if(!empty($settings['company_phone'])){{ $settings['company_phone'] }}<br>@endif
         @if(!empty($settings['company_email'])){{ $settings['company_email'] }}@endif
+    @if($data['company_address'] !== '—'){{ $data['company_address'] }}<br>@endif
+    @if(!empty($data['company_rc']))RC : {{ $data['company_rc'] }}<br>@endif
+    @if(!empty($data['company_nif']))NIF : {{ $data['company_nif'] }}<br>@endif
+    @if(!empty($data['company_nis']))NIS : {{ $data['company_nis'] }}<br>@endif
+    @if(!empty($data['company_ai']))AI : {{ $data['company_ai'] }}@endif
       </p>
     </div>
     <div class="party" style="padding-left:14px;">

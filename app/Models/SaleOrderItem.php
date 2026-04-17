@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SaleOrderItem extends Model
 {
-    protected $fillable = ['sales_order_id', 'finished_good_id', 'quantity', 'unit_price'];
+protected $fillable = [
+    'sales_order_id', 'finished_good_id', 'packaging_box_id',
+    'item_type', 'quantity', 'unit_price', 'total_price'
+];
 
     protected $casts = [
         'unit_price' => 'decimal:2',
@@ -23,4 +26,8 @@ class SaleOrderItem extends Model
     {
         return $this->belongsTo(FinishedGood::class);
     }
+    public function packagingBox(): BelongsTo
+{
+    return $this->belongsTo(PackagingBox::class);
+}
 }
