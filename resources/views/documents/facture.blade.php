@@ -126,12 +126,16 @@
     </div>
     <div class="party" style="padding-left:14px;">
       <p class="party-label">Facturé à</p>
-      <p class="party-name">{{ $data['client_name'] }}</p>
-      <p class="party-info">
-        @if($data['client_phone']  !== '—')Tél : {{ $data['client_phone'] }}<br>@endif
-        @if($data['client_email']  !== '—'){{ $data['client_email'] }}<br>@endif
-        @if($data['client_address'] !== '—'){{ $data['client_address'] }}@endif
-      </p>
+        <p class="party-name">{{ $data['client_name'] }}</p>
+  <p class="party-info">
+    @if($data['client_phone'] !== '—')Tél : {{ $data['client_phone'] }}<br>@endif
+    @if($data['client_email'] !== '—'){{ $data['client_email'] }}<br>@endif
+    @if($data['client_address'] !== '—'){{ $data['client_address'] }}<br>@endif
+    @if(!empty($data['client_rc']))RC : {{ $data['client_rc'] }}<br>@endif
+    @if(!empty($data['client_nif']))NIF : {{ $data['client_nif'] }}<br>@endif
+    @if(!empty($data['client_nis']))NIS : {{ $data['client_nis'] }}<br>@endif
+    @if(!empty($data['client_ai']))AI : {{ $data['client_ai'] }}@endif
+  </p>
     </div>
     <div class="party" style="padding-left:14px;">
       <p class="party-label">Commande</p>
