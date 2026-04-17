@@ -85,6 +85,14 @@
       <p class="party-info">
         Commercial : {{ $data['commercial'] }}<br>
         @if(!empty($settings['company_phone'])){{ $settings['company_phone'] }}@endif
+  <p class="party-info">
+    @if($settings['company_email'] !== '—'){{ $settings['company_email'] }}<br>@endif
+    @if($settings['company_address'] !== '—'){{ $settings['company_address'] }}<br>@endif
+    @if(!empty($settings['company_rc']))RC : {{ $settings['company_rc'] }}<br>@endif
+    @if(!empty($settings['company_nif']))NIF : {{ $settings['company_nif'] }}<br>@endif
+    @if(!empty($settings['company_nis']))NIS : {{ $settings['company_nis'] }}<br>@endif
+    @if(!empty($settings['company_ai']))AI : {{ $settings['company_ai'] }}@endif
+  </p>
       </p>
     </div>
     <div class="party" style="padding-left:14px;">
