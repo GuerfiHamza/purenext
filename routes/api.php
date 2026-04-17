@@ -103,6 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pack',                        [BoxController::class, 'pack']);
     Route::post('/out',                         [BoxController::class, 'out']);
 });
+Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+
 Route::apiResource('clients', ClientController::class);
 
     // ─── Routes réservées par rôle ────────────────────────────
