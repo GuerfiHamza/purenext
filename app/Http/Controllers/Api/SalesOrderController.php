@@ -15,7 +15,7 @@ class SalesOrderController extends Controller
 {
     public function index(): JsonResponse
 {
-    $orders = SalesOrder::with(['commercial', 'items.finishedGood.brand', 'items.packagingBox'])
+    $orders = SalesOrder::with(['commercial', 'items.finishedGood.brand', 'items.packagingBox.finishedGood'])
         ->latest()
         ->paginate(20);
 
