@@ -17,7 +17,7 @@ class ProductionRunController extends Controller
 {
     public function index(): JsonResponse
     {
-        $runs = ProductionRun::with(['recipe.brand', 'recipe.packagingOptions', 'packaging', 'operator'])
+        $runs = ProductionRun::with(['recipe.brand', 'recipe.packagingOptions', 'packaging', 'operator', 'finishedGood'])
             ->latest()
             ->paginate(20);
 
