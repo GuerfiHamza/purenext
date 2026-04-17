@@ -175,7 +175,7 @@ class BoxController extends Controller
                 'movable_id'   => $finishedGood->id,
                 'type'         => 'out',
                 'quantity'     => $packetsNeeded,
-                'unit'         => 'pcs',
+                'unit'         => 'piece',
                 'stock_before' => $fgStockBefore,
                 'stock_after'  => $fgStockAfter,
                 'reason'       => "Conditionnement → {$boxesCount} boites ({$box->name})",
