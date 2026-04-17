@@ -25,6 +25,10 @@ class SalesOrderController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'client_name' => 'required|string|max:150',
+            'client_phone' => 'nullable|string|max:30',
+            'client_email' => 'nullable|email|max:150',
+            'client_address' => 'nullable|string|max:255',
             'client_id' => 'nullable|exists:clients,id',
             'client_type' => 'nullable|in:particulier,societe',
             'client_rc' => 'nullable|string|max:50',
@@ -45,12 +49,16 @@ class SalesOrderController extends Controller
 
             $order = SalesOrder::create([
                 'order_number' => $orderNumber,
-                'client_id' => 'nullable|exists:clients,id',
-                'client_type' => 'nullable|in:particulier,societe',
-                'client_rc' => 'nullable|string|max:50',
-                'client_nif' => 'nullable|string|max:50',
-                'client_nis' => 'nullable|string|max:50',
-                'client_ai' => 'nullable|string|max:50',
+                'client_id' => $validated['client_id'] ?? null,
+                'client_type' => $validated['client_type'] ?? 'particulier',
+                'client_name' => $request->input('client_name'),
+                'client_phone' => $request->input('client_phone'),
+                'client_email' => $request->input('client_email'),
+                'client_address' => $request->input('client_address'),
+                'client_rc' => $validated['client_rc'] ?? null,
+                'client_nif' => $validated['client_nif'] ?? null,
+                'client_nis' => $validated['client_nis'] ?? null,
+                'client_ai' => $validated['client_ai'] ?? null,
                 'order_date' => $validated['order_date'],
                 'delivery_date' => $validated['delivery_date'] ?? null,
                 'commercial_id' => auth()->id(),
