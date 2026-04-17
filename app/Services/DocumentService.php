@@ -298,7 +298,10 @@ class DocumentService
 
     private function prepareFacture(int $id): array
     {
+        \Log::info('prepareFacture id: ' . $id);
         $order = SalesOrder::with(['items.finishedGood', 'items.packagingBox.finishedGood', 'commercial'])->findOrFail($id);
+        \Log::info('order_number: ' . $order->order_number);
+        // ...
         $settings = $this->getSettings();
 
         $subtotal = (float) $order->total_amount;
