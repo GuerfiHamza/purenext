@@ -67,7 +67,7 @@ class DocumentService
             'settings' => $settings,
         ])->setPaper('a4');
 
-        $filename = "documents/{$reference}.pdf";
+        $filename = "documents/{$reference}-{$documentableId}.pdf";
         Storage::disk('public')->put($filename, $pdf->output());
 
         return Document::create([
@@ -416,24 +416,24 @@ class DocumentService
     // ── Référence ─────────────────────────────────────────────────
 
     private function generateReference(string $type): string
-    {
-        $settings = $this->getSettings();
+{
+    $settings = $this->getSettings();
 
-        $prefix = match ($type) {
-            'rapport_production' => 'RPT',
-            'certificat_conformite' => 'CRT',
-            'fiche_technique' => 'FTK',
-            'facture' => $settings['invoice_prefix'] ?? 'FAC',
-            'bon_livraison' => 'BDL',
-            'bon_commande' => $settings['po_prefix'] ?? 'BDC',
-            'fiche_reception' => 'REC', // ← nouveau
-            'etiquette_stock' => 'ETQ', // ← nouveau
-            default => strtoupper(substr($type, 0, 3)),
-        };
+    $prefix = match ($type) {
+        'rapport_production'    => 'RPT',
+        'certificat_conformite' => 'CRT',
+        'fiche_technique'       => 'FTK',
+        'facture'               => $settings['invoice_prefix'] ?? 'FAC',
+        'bon_livraison'         => 'BDL',
+        'bon_commande'          => $settings['po_prefix'] ?? 'BDC',
+        'fiche_reception'       => 'REC',
+        'etiquette_stock'       => 'ETQ',
+        default                 => strtoupper(substr($type, 0, 3)),
+    };
 
-        $date = now()->format('Ymd');
-        $count = \App\Models\Document::whereDate('created_at', today())->where('type', $type)->count() + 1;
+    $date  = now()->format('Ymd');
+    $count = \App\Models\Document::where('type', $type)->count() + 1;
 
-        return sprintf('%s-%s-%03d', $prefix, $date, $count);
-    }
+    return sprintf('%s-%s-%03d', $prefix, $date, $count);
+}
 }
