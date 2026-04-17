@@ -21,17 +21,29 @@ class DocumentService
         // ── Vérifie si déjà généré ────────────────────────────────
         // Pour bon_commande on ne dédoublonne pas (même fournisseur,
         // commandes différentes à des dates différentes)
-        if ($type !== 'bon_commande') {
+        // Facture et BL toujours régénérés (données peuvent changer)
+        $alwaysRegenerate = ['facture', 'bon_livraison'];
+
+        if (!in_array($type, ['bon_commande', ...$alwaysRegenerate])) {
             $existing = Document::where('type', $type)->where('documentable_id', $documentableId)->where('documentable_type', $this->resolveDocumentableClass($type))->first();
 
             if ($existing) {
-                // Vérifie que le fichier existe encore sur le disque
                 if ($existing->file_path && Storage::disk('public')->exists($existing->file_path)) {
                     return $existing;
                 }
-                // Fichier supprimé du disque → on supprime l'entrée et on régénère
                 $existing->delete();
             }
+        } elseif (in_array($type, $alwaysRegenerate)) {
+            // Supprimer l'ancien et régénérer
+            Document::where('type', $type)
+                ->where('documentable_id', $documentableId)
+                ->where('documentable_type', $this->resolveDocumentableClass($type))
+                ->each(function ($doc) {
+                    if ($doc->file_path) {
+                        Storage::disk('public')->delete($doc->file_path);
+                    }
+                    $doc->delete();
+                });
         }
 
         // ── Génération normale ────────────────────────────────────
